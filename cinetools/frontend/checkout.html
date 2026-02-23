@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — CineTools</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root { --black:#0a0a0a;--dark:#111111;--card:#161616;--border:#2a2a2a;--gold:#d4a843;--gold-dim:#a07830;--red:#e84040;--text:#e8e8e8;--muted:#888;--white:#ffffff;--font-display:'Bebas Neue',sans-serif;--font-body:'DM Sans',sans-serif;--font-mono:'JetBrains Mono',monospace; }
+*{box-sizing:border-box;margin:0;padding:0;}body{background:var(--black);color:var(--text);font-family:var(--font-body);}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--dark);}::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:3px;}
+.navbar{background:rgba(10,10,10,0.96);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:64px;position:fixed;top:0;left:0;right:0;z-index:1000;}
+.navbar-inner{display:flex;align-items:center;justify-content:space-between;height:100%;padding:0 2rem;max-width:1400px;margin:0 auto;}
+.logo{font-family:var(--font-display);font-size:1.8rem;letter-spacing:3px;color:var(--white);text-decoration:none;}.logo span{color:var(--gold);}
+.page-header{margin-top:64px;background:var(--dark);border-bottom:1px solid var(--border);padding:2.5rem 0;}
+.page-header-inner{max-width:1200px;margin:0 auto;padding:0 2rem;}
+.page-header h1{font-family:var(--font-display);font-size:2.5rem;letter-spacing:3px;color:var(--white);}
+.breadcrumb-ct{display:flex;gap:0.5rem;align-items:center;font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem;}
+.breadcrumb-ct a{color:var(--muted);text-decoration:none;}.breadcrumb-ct a:hover{color:var(--gold);}
+.checkout-wrap{max-width:1200px;margin:2.5rem auto;padding:0 2rem;display:grid;grid-template-columns:1fr 380px;gap:2rem;}
+.checkout-panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-bottom:1.5rem;}
+.panel-title{font-weight:700;font-size:1rem;color:var(--white);margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem;}
+.panel-title .step-num{width:28px;height:28px;background:var(--gold);color:var(--black);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.form-group{margin-bottom:1rem;}
+.form-label{display:block;font-size:0.78rem;color:var(--muted);margin-bottom:0.4rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;}
+.form-input{width:100%;background:var(--dark);border:1px solid var(--border);color:var(--text);padding:0.7rem 1rem;border-radius:6px;font-family:var(--font-body);font-size:0.88rem;transition:border-color 0.2s;}
+.form-input:focus{outline:none;border-color:var(--gold-dim);}
+.form-select{width:100%;background:var(--dark);border:1px solid var(--border);color:var(--text);padding:0.7rem 1rem;border-radius:6px;font-family:var(--font-body);font-size:0.88rem;}
+/* Payment methods */
+.payment-options{display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.5rem;}
+.pay-opt{background:var(--dark);border:2px solid var(--border);border-radius:10px;padding:1rem 1.25rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.75rem;min-width:140px;}
+.pay-opt.selected{border-color:var(--gold);}
+.pay-opt i{font-size:1.2rem;color:var(--gold);}
+.pay-opt span{font-size:0.85rem;font-weight:600;}
+/* Card fields */
+.card-fields{background:var(--dark);border:1px solid var(--border);border-radius:10px;padding:1.25rem;}
+/* Order summary */
+.order-summary{position:sticky;top:80px;height:fit-content;}
+.summary-item{display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--border);font-size:0.85rem;}
+.summary-item:last-of-type{border-bottom:none;}
+.summary-item .item-img{width:50px;height:50px;border-radius:6px;object-fit:cover;}
+.summary-item .item-info{flex:1;padding:0 0.75rem;}
+.summary-item .item-name{font-weight:600;font-size:0.82rem;color:var(--white);}
+.summary-item .item-type{font-size:0.7rem;color:var(--gold);font-family:var(--font-mono);}
+.summary-item .item-price{font-family:var(--font-mono);font-size:0.88rem;font-weight:700;}
+.totals-row{display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.6rem;}
+.totals-row.total{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);}
+.totals-row .label{color:var(--muted);}
+.grand-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);}
+.grand-total .label{font-weight:700;color:var(--white);}
+.grand-total .value{font-family:var(--font-display);font-size:2.2rem;color:var(--gold);}
+/* Coupon */
+.coupon-wrap{display:flex;gap:0.5rem;margin:1rem 0;}
+.coupon-input{flex:1;background:var(--dark);border:1px solid var(--border);color:var(--text);padding:0.65rem 1rem;border-radius:6px;font-family:var(--font-body);font-size:0.85rem;}
+.coupon-input:focus{outline:none;border-color:var(--gold-dim);}
+.btn-coupon{background:var(--dark);border:1px solid var(--gold-dim);color:var(--gold);padding:0.65rem 1.25rem;border-radius:6px;font-size:0.82rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.btn-coupon:hover{background:rgba(212,168,67,0.1);}
+/* Buttons */
+.btn-place-order{width:100%;background:var(--gold);color:var(--black);border:none;padding:1.1rem;border-radius:8px;font-weight:800;font-size:1rem;cursor:pointer;text-transform:uppercase;letter-spacing:2px;transition:all 0.2s;margin-top:1rem;}
+.btn-place-order:hover{background:#e8bc55;transform:translateY(-1px);}
+.btn-place-order:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+/* Success */
+.success-screen{display:none;text-align:center;padding:4rem 2rem;}
+.success-icon{width:80px;height:80px;background:rgba(46,204,113,0.1);border:2px solid #2ecc71;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 2rem;color:#2ecc71;}
+.success-title{font-family:var(--font-display);font-size:2.5rem;letter-spacing:2px;color:var(--white);margin-bottom:1rem;}
+.success-order-num{font-family:var(--font-mono);font-size:1.1rem;color:var(--gold);margin-bottom:2rem;}
+.btn-primary-ct{background:var(--gold);color:var(--black);padding:0.8rem 2rem;font-weight:700;text-decoration:none;border-radius:8px;transition:all 0.2s;font-size:0.9rem;letter-spacing:1px;text-transform:uppercase;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;}
+.btn-primary-ct:hover{background:#e8bc55;color:var(--black);}
+.btn-outline-ct{background:transparent;color:var(--white);padding:0.8rem 2rem;font-weight:600;text-decoration:none;border-radius:8px;transition:all 0.2s;font-size:0.9rem;letter-spacing:1px;text-transform:uppercase;border:1px solid var(--border);cursor:pointer;}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid rgba(0,0,0,0.3);border-top-color:var(--black);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;}
+.toast-item{background:var(--card);border:1px solid var(--border);color:var(--text);padding:1rem 1.5rem;border-radius:8px;font-size:0.88rem;display:flex;align-items:center;gap:0.75rem;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:slideIn 0.3s ease;max-width:320px;}
+.toast-item.success{border-color:#2ecc71;}.toast-item.error{border-color:var(--red);}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.u-navbar-secure{display:flex;align-items:center;gap:1.5rem;font-size:0.82rem;color:var(--muted);}
+.u-icon-gold{color:var(--gold);}
+.u-success-center{max-width:600px;margin:4rem auto;}
+.u-success-desc{color:var(--muted);margin-bottom:2rem;font-size:0.9rem;}
+.u-success-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+.u-shipping-options{display:flex;flex-direction:column;gap:0.75rem;}
+.u-shipping-label{display:flex;align-items:center;gap:1rem;background:var(--dark);border:2px solid var(--border);border-radius:10px;padding:1rem;cursor:pointer;}
+.u-shipping-label.active{border-color:var(--gold);}
+.u-shipping-radio{accent-color:var(--gold);}
+.u-shipping-info{flex:1;}
+.u-shipping-title{font-weight:700;font-size:0.9rem;color:var(--white);}
+.u-shipping-subtitle{font-size:0.78rem;color:var(--muted);}
+.u-shipping-price{font-family:var(--font-mono);color:var(--text);font-weight:700;}
+.u-shipping-price.free{color:#2ecc71;}
+.u-payment-info{display:none;background:var(--dark);border:1px solid var(--border);border-radius:10px;padding:1.5rem;}
+.u-payment-info.center{text-align:center;}
+.u-paypal-icon{font-size:3rem;color:#003087;margin-bottom:1rem;display:block;}
+.u-payment-desc{color:var(--muted);font-size:0.88rem;}
+.u-payment-desc.mb-1{margin-bottom:1rem;}
+.u-bank-info{font-family:var(--font-mono);font-size:0.82rem;color:var(--text);line-height:2;}
+.u-notes-optional{font-size:0.75rem;color:var(--muted);font-weight:400;margin-left:0.5rem;}
+.u-textarea-resize{resize:vertical;}
+.u-panel-title-plain{border-bottom:none;padding-bottom:0;margin-bottom:1rem;}
+.u-loading-center{text-align:center;padding:2rem;color:var(--muted);}
+.u-spinner-gold{border-top-color:var(--gold);}
+.u-loading-text{margin-top:0.5rem;font-size:0.82rem;}
+.u-mt-1{margin-top:1rem;}
+.u-coupon-uppercase{text-transform:uppercase;}
+.u-coupon-msg{font-size:0.78rem;margin-top:0.25rem;}
+.u-totals-section{margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border);}
+.u-discount-value{color:#2ecc71;}
+.u-trust-badges{display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:1rem;font-size:0.75rem;color:var(--muted);}
+@media(max-width:900px){.checkout-wrap{grid-template-columns:1fr;}.order-summary{position:static;}}
+@media(max-width:600px){.form-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="logo">Cine<span>Tools</span></a>
+    <div class="u-navbar-secure">
+      <span><i class="fas fa-lock me-1 u-icon-gold"></i>Secure Checkout</span>
+      <span><i class="fas fa-shield-alt me-1 u-icon-gold"></i>SSL Encrypted</span>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="breadcrumb-ct"><a href="index.html">Home</a><span>/</span><a href="shop.html">Shop</a><span>/</span><span>Checkout</span></div>
+    <h1>Secure Checkout</h1>
+  </div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div id="successScreen" class="success-screen u-success-center">
+  <div class="success-icon"><i class="fas fa-check"></i></div>
+  <h2 class="success-title">Order Confirmed!</h2>
+  <p class="success-order-num" id="successOrderNum">Order #CT-20240101-ABC123</p>
+  <p class="u-success-desc">Thank you for your order! You'll receive a confirmation email shortly. Our team will process your order within 24 hours.</p>
+  <div class="u-success-actions">
+    <a href="orders.html" class="btn-primary-ct"><i class="fas fa-box me-2"></i>View My Orders</a>
+    <a href="shop.html" class="btn-outline-ct">Continue Shopping</a>
+  </div>
+</div>
+
+<!-- CHECKOUT FORM -->
+<div id="checkoutForm" class="checkout-wrap">
+  <!-- LEFT: Form -->
+  <div>
+    <!-- Shipping -->
+    <div class="checkout-panel">
+      <div class="panel-title"><div class="step-num">1</div>Shipping Information</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-input" id="firstName" placeholder="John"></div>
+        <div class="form-group"><label class="form-label">Last Name</label><input type="text" class="form-input" id="lastName" placeholder="Doe"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Email Address</label><input type="email" class="form-input" id="email" placeholder="john@example.com"></div>
+      <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="form-input" id="phone" placeholder="+1 (555) 000-0000"></div>
+      <div class="form-group"><label class="form-label">Street Address</label><input type="text" class="form-input" id="address" placeholder="123 Film Studio Lane"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">City</label><input type="text" class="form-input" id="city" placeholder="Los Angeles"></div>
+        <div class="form-group"><label class="form-label">State / Province</label><input type="text" class="form-input" id="state" placeholder="CA"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">ZIP Code</label><input type="text" class="form-input" id="zip" placeholder="90028"></div>
+        <div class="form-group"><label class="form-label">Country</label>
+          <select class="form-input form-select" id="country" title="Select country">
+            <option>United States</option><option>United Kingdom</option><option>Canada</option><option>Australia</option><option>India</option><option>Germany</option><option>France</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shipping Method -->
+    <div class="checkout-panel">
+      <div class="panel-title"><div class="step-num">2</div>Shipping Method</div>
+      <div class="u-shipping-options" id="shippingOptions">
+        <label class="u-shipping-label active">
+          <input type="radio" name="shipping" value="0" checked class="u-shipping-radio">
+          <div class="u-shipping-info"><div class="u-shipping-title">Standard Shipping</div><div class="u-shipping-subtitle">5-7 business days</div></div>
+          <span class="u-shipping-price free">FREE</span>
+        </label>
+        <label class="u-shipping-label" onclick="this.querySelector('input').checked=true">
+          <input type="radio" name="shipping" value="25" class="u-shipping-radio">
+          <div class="u-shipping-info"><div class="u-shipping-title">Express Shipping</div><div class="u-shipping-subtitle">2-3 business days</div></div>
+          <span class="u-shipping-price">$25.00</span>
+        </label>
+        <label class="u-shipping-label" onclick="this.querySelector('input').checked=true">
+          <input type="radio" name="shipping" value="55" class="u-shipping-radio">
+          <div class="u-shipping-info"><div class="u-shipping-title">Overnight Delivery</div><div class="u-shipping-subtitle">Next business day</div></div>
+          <span class="u-shipping-price">$55.00</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Payment -->
+    <div class="checkout-panel">
+      <div class="panel-title"><div class="step-num">3</div>Payment Method</div>
+      <div class="payment-options">
+        <div class="pay-opt selected" id="payCard" onclick="selectPayment('card')"><i class="fas fa-credit-card"></i><span>Credit Card</span></div>
+        <div class="pay-opt" id="payPaypal" onclick="selectPayment('paypal')"><i class="fab fa-paypal"></i><span>PayPal</span></div>
+        <div class="pay-opt" id="payBank" onclick="selectPayment('bank')"><i class="fas fa-university"></i><span>Bank Transfer</span></div>
+      </div>
+      <div id="cardFields" class="card-fields">
+        <div class="form-group"><label class="form-label">Card Number</label><input type="text" class="form-input" id="cardNum" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Expiry Date</label><input type="text" class="form-input" id="cardExp" placeholder="MM/YY" maxlength="5"></div>
+          <div class="form-group"><label class="form-label">CVV</label><input type="text" class="form-input" id="cardCvv" placeholder="123" maxlength="4"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Cardholder Name</label><input type="text" class="form-input" id="cardName" placeholder="John Doe"></div>
+      </div>
+      <div id="paypalInfo" class="u-payment-info center">
+        <i class="fab fa-paypal u-paypal-icon"></i>
+        <p class="u-payment-desc">You'll be redirected to PayPal to complete your payment securely.</p>
+      </div>
+      <div id="bankInfo" class="u-payment-info">
+        <p class="u-payment-desc mb-1">Transfer to our bank account:</p>
+        <div class="u-bank-info">
+          Bank: <strong>CineTools Financial</strong><br>
+          Account: <strong>0012345678</strong><br>
+          Routing: <strong>021000089</strong><br>
+          Reference: <strong id="bankRef">CT-ORDER</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="checkout-panel">
+      <div class="panel-title"><div class="step-num">4</div>Order Notes <span class="u-notes-optional">(Optional)</span></div>
+      <textarea class="form-input u-textarea-resize" id="orderNotes" rows="3" placeholder="Special instructions for delivery or rental..."></textarea>
+    </div>
+  </div>
+
+  <!-- RIGHT: Order Summary -->
+  <div class="order-summary">
+    <div class="checkout-panel">
+      <div class="panel-title u-panel-title-plain">Order Summary</div>
+      <div id="summaryItems">
+        <div class="u-loading-center"><div class="spinner u-spinner-gold"></div><p class="u-loading-text">Loading cart...</p></div>
+      </div>
+
+      <!-- Coupon -->
+      <div class="u-mt-1">
+        <div class="coupon-wrap">
+          <input type="text" class="coupon-input u-coupon-uppercase" id="couponCode" placeholder="Coupon code" title="Enter coupon code">
+          <button class="btn-coupon" onclick="applyCoupon()"><i class="fas fa-tag me-1"></i>Apply</button>
+        </div>
+        <div id="couponMsg" class="u-coupon-msg"></div>
+      </div>
+
+      <!-- Totals -->
+      <div class="u-totals-section">
+        <div class="totals-row"><span class="label">Subtotal</span><span id="subtotalVal">$0.00</span></div>
+        <div class="totals-row u-hidden" id="discountRow"><span class="label">Discount</span><span id="discountVal" class="u-discount-value"></span></div>
+        <div class="totals-row"><span class="label">Shipping</span><span id="shippingVal">FREE</span></div>
+        <div class="totals-row"><span class="label">Tax (8%)</span><span id="taxVal">$0.00</span></div>
+      </div>
+      <div class="grand-total"><span class="label">Total</span><span class="value" id="totalVal">$0.00</span></div>
+
+      <button class="btn-place-order" onclick="placeOrder()" id="placeOrderBtn">
+        <i class="fas fa-lock me-2"></i>Place Order
+      </button>
+      <div class="u-trust-badges">
+        <span><i class="fas fa-shield-alt me-1 u-icon-gold"></i>SSL Secure</span>
+        <span><i class="fas fa-undo me-1 u-icon-gold"></i>30-Day Returns</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const API = 'http://localhost:5000/api';
+let cartData = [], cartTotal = 0, discount = 0, appliedCoupon = null, selectedPayment = 'card';
+
+function getToken() { return localStorage.getItem('ct_token'); }
+async function api(path, opts={}) {
+  const token = getToken();
+  const headers = {'Content-Type':'application/json'};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(API+path, {headers,...opts});
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.msg||'Error');
+  return data;
+}
+function toast(msg, type='success') {
+  const c = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast-item ${type}`;
+  el.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':'exclamation-circle'}" style="color:${type==='success'?'#2ecc71':'var(--red)'}"></i>${msg}`;
+  c.appendChild(el); setTimeout(()=>el.remove(),3500);
+}
+
+function selectPayment(type) {
+  selectedPayment = type;
+  ['card','paypal','bank'].forEach(t => {
+    document.getElementById('pay'+t.charAt(0).toUpperCase()+t.slice(1))?.classList.toggle('selected', t===type);
+  });
+  document.getElementById('cardFields').style.display = type==='card'?'block':'none';
+  document.getElementById('paypalInfo').style.display = type==='paypal'?'block':'none';
+  document.getElementById('bankInfo').style.display = type==='bank'?'block':'none';
+}
+
+function formatCard(input) {
+  let v = input.value.replace(/\D/g,'').slice(0,16);
+  input.value = v.match(/.{1,4}/g)?.join(' ')||v;
+}
+
+async function loadCart() {
+  if (!getToken()) { window.location.href='index.html'; return; }
+  try {
+    const d = await api('/cart');
+    cartData = d.cart; cartTotal = d.total;
+    if (!cartData.length) { window.location.href='shop.html'; return; }
+    // Pre-fill user info
+    const me = await api('/auth/me');
+    const u = me.user;
+    document.getElementById('email').value = u.email||'';
+    const names = (u.name||'').split(' ');
+    document.getElementById('firstName').value = names[0]||'';
+    document.getElementById('lastName').value = names.slice(1).join(' ')||'';
+    document.getElementById('phone').value = u.phone||'';
+    if (u.address) {
+      document.getElementById('address').value = u.address.street||'';
+      document.getElementById('city').value = u.address.city||'';
+      document.getElementById('state').value = u.address.state||'';
+      document.getElementById('zip').value = u.address.zip||'';
+    }
+    renderSummary();
+  } catch(e) { window.location.href='index.html'; }
+}
+
+function renderSummary() {
+  const el = document.getElementById('summaryItems');
+  el.innerHTML = cartData.map(i => {
+    const p = i.product;
+    const price = i.type==='rent' ? p.rent_price_day*(i.rent_days||1)*i.quantity : p.price*i.quantity;
+    return `<div class="summary-item">
+      <img class="item-img" src="${p.images?.[0]||''}" alt="${p.name}">
+      <div class="item-info">
+        <div class="item-name">${p.name}</div>
+        <div class="item-type">${i.type==='rent'?`Rent · ${i.rent_days}d`:'Purchase'}</div>
+      </div>
+      <span style="font-family:var(--font-mono);font-size:0.88rem">₹${price.toFixed(2)}</span>
+    </div>`;
+  }).join('');
+  updateTotals();
+}
+
+function updateTotals() {
+  const shipping = parseFloat(document.querySelector('input[name="shipping"]:checked')?.value||0);
+  const sub = cartTotal;
+  const disc = discount;
+  const tax = (sub - disc) * 0.08;
+  const total = sub - disc + tax + shipping;
+  document.getElementById('subtotalVal').textContent = `₹${sub.toFixed(2)}`;
+  document.getElementById('shippingVal').textContent = shipping ? `₹${shipping.toFixed(2)}` : 'FREE';
+  document.getElementById('taxVal').textContent = `₹${tax.toFixed(2)}`;
+  document.getElementById('totalVal').textContent = `₹${total.toFixed(2)}`;
+  if (disc > 0) {
+    document.getElementById('discountRow').style.display='flex';
+    document.getElementById('discountVal').textContent = `-₹${disc.toFixed(2)}`;
+  }
+}
+
+document.querySelectorAll('input[name="shipping"]').forEach(r => r.addEventListener('change', updateTotals));
+
+async function applyCoupon() {
+  const code = document.getElementById('couponCode').value.trim().toUpperCase();
+  if (!code) return;
+  const msgEl = document.getElementById('couponMsg');
+  try {
+    const d = await api('/coupons/apply', {method:'POST', body:JSON.stringify({code,total:cartTotal})});
+    discount = d.discount; appliedCoupon = d.coupon;
+    msgEl.style.color = '#2ecc71';
+    msgEl.textContent = `✓ Coupon applied! You save ₹${d.discount.toFixed(2)}`;
+    updateTotals();
+    toast(`Coupon ${code} applied!`);
+  } catch(e) { msgEl.style.color='var(--red)'; msgEl.textContent=e.message; }
+}
+
+async function placeOrder() {
+  const btn = document.getElementById('placeOrderBtn');
+  const firstName = document.getElementById('firstName').value;
+  const lastName = document.getElementById('lastName').value;
+  const email = document.getElementById('email').value;
+  if (!firstName||!lastName||!email) { toast('Please fill in all required fields','error'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Processing Order...';
+
+  const shipping = parseFloat(document.querySelector('input[name="shipping"]:checked')?.value||0);
+  const tax = (cartTotal - discount) * 0.08;
+
+  try {
+    const d = await api('/orders', {method:'POST', body:JSON.stringify({
+      shipping_address: {
+        name: `${firstName} ${lastName}`,
+        street: document.getElementById('address').value,
+        city: document.getElementById('city').value,
+        state: document.getElementById('state').value,
+        zip: document.getElementById('zip').value,
+        country: document.getElementById('country').value,
+        email: email, phone: document.getElementById('phone').value
+      },
+      payment_method: selectedPayment,
+      discount, coupon_code: appliedCoupon?.code||'',
+      shipping, notes: document.getElementById('orderNotes').value
+    })});
+    // Show success
+    document.getElementById('checkoutForm').style.display='none';
+    document.getElementById('successScreen').style.display='block';
+    document.getElementById('successOrderNum').textContent = `Order #${d.order.order_number}`;
+    window.scrollTo(0,0);
+  } catch(e) {
+    toast(e.message,'error');
+    btn.disabled=false;
+    btn.innerHTML='<i class="fas fa-lock me-2"></i>Place Order';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!getToken()) { window.location.href='index.html'; return; }
+  loadCart();
+});
+</script>
+</body>
+</html>

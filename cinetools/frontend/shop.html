@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shop — CineTools</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="index.html" as="style" onload="this.rel='stylesheet'">
+<style>
+/* Inherit main styles from index.html via inline */
+:root {
+  --black: #0a0a0a; --dark: #111111; --card: #161616; --border: #2a2a2a;
+  --gold: #d4a843; --gold-dim: #a07830; --red: #e84040; --text: #e8e8e8;
+  --muted: #888; --white: #ffffff; --radius: 8px;
+  --font-display: 'Bebas Neue', sans-serif; --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--black); color: var(--text); font-family: var(--font-body); }
+::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--dark); }
+::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
+
+.navbar { background: rgba(10,10,10,0.96); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0; height: 64px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+.navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; padding: 0 2rem; max-width: 1400px; margin: 0 auto; }
+.logo { font-family: var(--font-display); font-size: 1.8rem; letter-spacing: 3px; color: var(--white); text-decoration: none; }
+.logo span { color: var(--gold); }
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; transition: color 0.2s; }
+.nav-links a:hover, .nav-links a.active { color: var(--gold); }
+.nav-actions { display: flex; align-items: center; gap: 1rem; }
+.icon-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.1rem; padding: 0.4rem; transition: color 0.2s; position: relative; }
+.icon-btn:hover { color: var(--gold); }
+.badge-count { position: absolute; top: -4px; right: -4px; background: var(--red); color: white; font-size: 0.65rem; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.btn-primary-ct { background: var(--gold); color: var(--black); padding: 0.8rem 2rem; font-weight: 700; text-decoration: none; border-radius: var(--radius); transition: all 0.2s; font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; }
+.btn-primary-ct:hover { background: #e8bc55; color: var(--black); }
+.btn-outline-ct { background: transparent; color: var(--white); padding: 0.8rem 2rem; font-weight: 600; text-decoration: none; border-radius: var(--radius); transition: all 0.2s; font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase; border: 1px solid var(--border); cursor: pointer; }
+
+/* Page Header */
+.page-header { margin-top: 64px; background: var(--dark); border-bottom: 1px solid var(--border); padding: 2.5rem 0; }
+.page-header-inner { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+.page-header h1 { font-family: var(--font-display); font-size: 2.5rem; letter-spacing: 3px; color: var(--white); }
+.breadcrumb-ct { display: flex; gap: 0.5rem; align-items: center; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; }
+.breadcrumb-ct a { color: var(--muted); text-decoration: none; } .breadcrumb-ct a:hover { color: var(--gold); }
+.breadcrumb-ct .sep { color: var(--border); }
+
+/* Shop Layout */
+.shop-layout { max-width: 1400px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 260px 1fr; gap: 2rem; }
+
+/* Sidebar Filters */
+.filter-sidebar { position: sticky; top: 80px; height: fit-content; }
+.filter-panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
+.filter-panel h4 { font-size: 0.75rem; font-weight: 700; color: var(--white); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+.filter-check { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem; cursor: pointer; padding: 0.3rem; border-radius: 4px; transition: background 0.15s; }
+.filter-check:hover { background: rgba(255,255,255,0.03); }
+.filter-check input { accent-color: var(--gold); width: 15px; height: 15px; flex-shrink: 0; }
+.filter-check label { font-size: 0.85rem; color: var(--muted); cursor: pointer; flex: 1; }
+.filter-check .count { font-size: 0.72rem; color: var(--border); font-family: var(--font-mono); }
+.price-range { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; }
+.price-input { flex: 1; background: var(--dark); border: 1px solid var(--border); color: var(--text); padding: 0.5rem; border-radius: 6px; font-size: 0.82rem; font-family: var(--font-body); }
+.price-input:focus { outline: none; border-color: var(--gold-dim); }
+.btn-apply { width: 100%; background: var(--gold); color: var(--black); border: none; padding: 0.6rem; border-radius: 6px; font-weight: 700; font-size: 0.82rem; cursor: pointer; margin-top: 0.75rem; text-transform: uppercase; letter-spacing: 1px; transition: background 0.2s; }
+.btn-apply:hover { background: #e8bc55; }
+.btn-clear { width: 100%; background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 0.5rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-top: 0.5rem; transition: all 0.2s; }
+.btn-clear:hover { border-color: var(--red); color: var(--red); }
+
+/* Products Area */
+.shop-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: gap; gap: 1rem; }
+.search-wrap { position: relative; flex: 1; max-width: 400px; }
+.search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--muted); }
+.search-field { width: 100%; background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 0.7rem 1rem 0.7rem 2.5rem; border-radius: 8px; font-family: var(--font-body); font-size: 0.88rem; transition: border-color 0.2s; }
+.search-field:focus { outline: none; border-color: var(--gold-dim); }
+.sort-controls { display: flex; align-items: center; gap: 0.75rem; }
+.sort-select { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 0.65rem 1rem; border-radius: 8px; font-family: var(--font-body); font-size: 0.85rem; cursor: pointer; }
+.sort-select:focus { outline: none; border-color: var(--gold-dim); }
+.results-info { font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+.view-btns { display: flex; gap: 0.25rem; }
+.view-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); width: 34px; height: 34px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.view-btn.active { background: var(--gold); border-color: var(--gold); color: var(--black); }
+
+/* View toggle */
+.products-list { display: flex; flex-direction: column; gap: 1rem; }
+.product-card-list { background: var(--card); border: 1px solid var(--border); border-radius: 10px; display: flex; gap: 1.5rem; overflow: hidden; transition: all 0.2s; cursor: pointer; }
+.product-card-list:hover { border-color: var(--gold-dim); transform: translateY(-2px); }
+.product-card-list .list-img { width: 180px; height: 140px; object-fit: cover; flex-shrink: 0; }
+.product-card-list .list-body { flex: 1; padding: 1.25rem; display: flex; flex-direction: column; justify-content: center; }
+.product-card-list .list-actions { padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; align-items: flex-end; }
+
+/* Product Card (grid) */
+.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+.product-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: all 0.3s; cursor: pointer; position: relative; }
+.product-card:hover { border-color: var(--gold-dim); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+.product-img-wrap { position: relative; height: 200px; overflow: hidden; background: #0d0d0d; }
+.product-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+.product-card:hover .product-img-wrap img { transform: scale(1.05); }
+.product-badge { position: absolute; top: 0.75rem; left: 0.75rem; background: var(--gold); color: var(--black); font-size: 0.62rem; font-weight: 800; padding: 0.25rem 0.6rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; }
+.wishlist-btn { position: absolute; top: 0.75rem; right: 0.75rem; background: rgba(0,0,0,0.7); border: none; color: var(--muted); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
+.wishlist-btn:hover, .wishlist-btn.active { color: var(--red); background: rgba(0,0,0,0.9); }
+.rent-tag { position: absolute; bottom: 0.75rem; left: 0.75rem; background: rgba(0,0,0,0.85); color: var(--gold); font-size: 0.68rem; font-family: var(--font-mono); padding: 0.22rem 0.55rem; border-radius: 4px; }
+.out-of-stock { position: absolute; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; }
+.out-of-stock span { background: var(--red); color: white; font-size: 0.75rem; font-weight: 700; padding: 0.5rem 1rem; border-radius: 6px; text-transform: uppercase; letter-spacing: 1px; }
+.product-body { padding: 1.1rem; }
+.product-brand { font-size: 0.7rem; color: var(--gold-dim); font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.35rem; }
+.product-name { font-size: 0.9rem; font-weight: 700; color: var(--white); line-height: 1.3; margin-bottom: 0.5rem; }
+.product-rating { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.6rem; }
+.stars { color: var(--gold); font-size: 0.72rem; }
+.rating-count { font-size: 0.7rem; color: var(--muted); }
+.product-price { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 0.75rem; }
+.price-buy { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700; color: var(--white); }
+.price-rent { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); }
+.product-actions { display: flex; gap: 0.5rem; }
+.btn-cart { flex: 1; background: var(--gold); color: var(--black); border: none; padding: 0.55rem; border-radius: 6px; font-weight: 700; font-size: 0.78rem; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
+.btn-cart:hover { background: #e8bc55; }
+.btn-rent { flex: 1; background: transparent; color: var(--gold); border: 1px solid var(--gold-dim); padding: 0.55rem; border-radius: 6px; font-weight: 700; font-size: 0.78rem; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+.btn-rent:hover { background: rgba(212,168,67,0.1); }
+
+/* Pagination */
+.pagination-wrap { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 3rem; }
+.page-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); width: 38px; height: 38px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; transition: all 0.2s; }
+.page-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+.page-btn.active { background: var(--gold); border-color: var(--gold); color: var(--black); font-weight: 700; }
+
+/* Modals, Toast, Cart, Auth, Rent */
+.toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
+.toast-item { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 1rem 1.5rem; border-radius: 8px; font-size: 0.88rem; display: flex; align-items: center; gap: 0.75rem; box-shadow: 0 8px 32px rgba(0,0,0,0.5); animation: slideIn 0.3s ease; max-width: 320px; }
+.toast-item.success { border-color: #2ecc71; } .toast-item.error { border-color: var(--red); }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.modal-box { background: var(--dark); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; position: relative; }
+.modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: var(--card); border: 1px solid var(--border); color: var(--text); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; }
+.cart-sidebar { position: fixed; right: 0; top: 0; bottom: 0; width: 420px; background: var(--dark); border-left: 1px solid var(--border); z-index: 1500; transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+.cart-sidebar.open { transform: translateX(0); }
+.cart-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.cart-header h3 { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 2px; }
+.cart-items { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.cart-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; display: flex; gap: 1rem; }
+.cart-item-img { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+.cart-item-name { font-size: 0.85rem; font-weight: 700; color: var(--white); }
+.cart-item-type { font-size: 0.7rem; color: var(--gold); font-family: var(--font-mono); text-transform: uppercase; }
+.cart-item-price { font-family: var(--font-mono); font-size: 0.95rem; color: var(--white); margin-top: 0.25rem; }
+.cart-footer { padding: 1.5rem; border-top: 1px solid var(--border); }
+.cart-total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.cart-total-label { font-size: 0.85rem; color: var(--muted); }
+.cart-total-value { font-family: var(--font-display); font-size: 1.8rem; color: var(--white); }
+.btn-checkout { width: 100%; background: var(--gold); color: var(--black); border: none; padding: 1rem; border-radius: 8px; font-weight: 800; font-size: 0.95rem; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; transition: all 0.2s; }
+.btn-checkout:hover { background: #e8bc55; }
+.sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1400; display: none; }
+.sidebar-overlay.show { display: block; }
+.auth-tabs { display: flex; border-bottom: 1px solid var(--border); }
+.auth-tab { flex: 1; padding: 1rem; text-align: center; cursor: pointer; color: var(--muted); font-weight: 600; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; border: none; background: none; transition: all 0.2s; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.auth-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+.auth-form { padding: 2rem; }
+.form-group { margin-bottom: 1.25rem; }
+.form-label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+.form-input { width: 100%; background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--font-body); font-size: 0.9rem; transition: border-color 0.2s; }
+.form-input:focus { outline: none; border-color: var(--gold-dim); }
+.rent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.rent-option { background: var(--card); border: 2px solid var(--border); border-radius: 10px; padding: 1.25rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+.rent-option:hover, .rent-option.selected { border-color: var(--gold); }
+.rent-option .period { font-family: var(--font-display); font-size: 1.3rem; letter-spacing: 1px; color: var(--white); }
+.rent-option .rent-price { font-family: var(--font-mono); font-size: 1.1rem; color: var(--gold); margin-top: 0.25rem; }
+.rent-option .savings { font-size: 0.72rem; color: #2ecc71; margin-top: 0.25rem; }
+.spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-state { text-align: center; padding: 4rem; color: var(--muted); }
+.loading-state .spinner { width: 40px; height: 40px; margin-bottom: 1rem; border-width: 3px; }
+.empty-state { text-align: center; padding: 4rem 2rem; }
+.empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; }
+
+/* Utility Classes */
+.u-hidden { display: none; }
+.u-admin-btn { display: none; padding: 0.4rem 1rem; font-size: 0.75rem; }
+.u-dropdown { display: none; position: fixed; top: 64px; right: 2rem; z-index: 1100;
+  background: var(--dark); border: 1px solid var(--border); border-radius: 10px; min-width: 200px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5); padding: 0.5rem; }
+.u-user-info { padding: 1rem; border-bottom: 1px solid var(--border); }
+.u-user-name { font-weight: 700; font-size: 0.9rem; }
+.u-user-email { font-size: 0.75rem; color: var(--muted); }
+.u-dropdown-link { display: block; padding: 0.75rem 1rem; color: var(--text);
+  text-decoration: none; font-size: 0.85rem; }
+.u-dropdown-link.logout { color: var(--red); }
+.u-dropdown-link.register { color: var(--gold); }
+.u-page-subtitle { color: var(--muted); font-size: 0.88rem; margin-top: 0.35rem; }
+.u-icon-gold { color: var(--gold); }
+.u-icon-blue { color: #3a8afd; }
+.u-text-muted { color: var(--muted); }
+.u-grid-full { grid-column: 1/-1; }
+.u-spinner-large { width: 40px; height: 40px; border-width: 3px; }
+.u-mt-1 { margin-top: 1rem; }
+.u-text-center-muted { margin-top: 1rem; color: var(--muted); }
+.u-modal-sm { max-width: 480px; }
+.u-btn-full { width: 100%; margin-top: 0.5rem; }
+.u-modal-rent { max-width: 520px; padding: 2rem; }
+.u-rent-title { font-family: var(--font-display); font-size: 1.8rem; letter-spacing: 2px; margin-bottom: 0.5rem; }
+.u-rent-subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 2rem; }
+.u-form-mt { margin-top: 1.5rem; }
+.u-date-input { margin-top: 0.5rem; }
+.u-rent-total-box { margin-top: 1rem; padding: 1rem; background: var(--card); border-radius: 8px;
+  display: flex; justify-content: space-between; align-items: center; }
+.u-rent-total-label { font-size: 0.85rem; color: var(--muted); }
+.u-rent-total-value { font-family: var(--font-display); font-size: 1.8rem; color: var(--gold); }
+.u-btn-mt { width: 100%; margin-top: 1.5rem; }
+.u-demo-text { text-align: center; font-size: 0.8rem; color: var(--muted); margin-top: 1rem; }
+
+@media (max-width: 900px) { .shop-layout { grid-template-columns: 1fr; } .filter-sidebar { position: static; } }
+@media (max-width: 600px) { .nav-links { display: none; } .cart-sidebar { width: 100%; } }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="logo">Cine<span>Tools</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="shop.html" class="active">Shop</a></li>
+      <li><a href="shop.html?type=rent">Rent</a></li>
+      <li><a href="orders.html">Orders</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="icon-btn" onclick="openCart()" title="Shopping Cart">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="badge-count u-hidden" id="cartCount">0</span>
+      </button>
+      <button class="icon-btn" onclick="toggleUserMenu()" id="userBtn" title="User Menu"><i class="fas fa-user-circle"></i></button>
+      <button id="adminNavBtn" class="btn-primary-ct u-admin-btn" onclick="window.location='admin.html'"><i class="fas fa-cog"></i> Admin</button>
+    </div>
+  </div>
+</nav>
+
+<!-- User Dropdown -->
+<div id="userDropdown" class="u-dropdown">
+  <div class="u-user-info"><div class="u-user-name" id="ddName">Guest</div><div class="u-user-email" id="ddEmail"></div></div>
+  <div id="loggedInLinks"><a href="orders.html" class="u-dropdown-link"><i class="fas fa-box me-2"></i>My Orders</a><a href="#" onclick="logout()" class="u-dropdown-link logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></div>
+  <div id="loggedOutLinks"><a href="#" onclick="openAuth('login');toggleUserMenu()" class="u-dropdown-link"><i class="fas fa-sign-in-alt me-2"></i>Login</a><a href="#" onclick="openAuth('register');toggleUserMenu()" class="u-dropdown-link register"><i class="fas fa-user-plus me-2"></i>Register</a></div>
+</div>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="breadcrumb-ct"><a href="index.html">Home</a><span class="sep">/</span><span>Shop</span></div>
+    <h1 id="pageTitle">All Equipment</h1>
+    <p id="pageSubtitle" class="u-page-subtitle">Browse our complete professional cinema equipment catalog</p>
+  </div>
+</div>
+
+<!-- SHOP LAYOUT -->
+<div class="shop-layout">
+
+  <!-- FILTER SIDEBAR -->
+  <aside class="filter-sidebar">
+    <!-- Type Filter -->
+    <div class="filter-panel">
+      <h4>Browse By</h4>
+      <div class="filter-check"><input type="radio" name="buyRent" id="allType" checked onchange="applyFilters()"><label for="allType">All Equipment</label></div>
+      <div class="filter-check"><input type="radio" name="buyRent" id="buyOnly" onchange="applyFilters()"><label for="buyOnly"><i class="fas fa-shopping-bag me-1 u-icon-gold"></i>Buy Only</label></div>
+      <div class="filter-check"><input type="radio" name="buyRent" id="rentOnly" onchange="applyFilters()"><label for="rentOnly"><i class="fas fa-calendar-alt me-1 u-icon-blue"></i>Rent Only</label></div>
+    </div>
+
+    <!-- Categories -->
+    <div class="filter-panel">
+      <h4>Category</h4>
+      <div id="catFilters">
+        <div class="filter-check"><input type="checkbox" id="catAll" checked onchange="clearCatFilters()"><label for="catAll">All Categories</label></div>
+      </div>
+    </div>
+
+    <!-- Brands -->
+    <div class="filter-panel">
+      <h4>Brand</h4>
+      <div class="filter-check"><input type="checkbox" id="brandSony" onchange="applyFilters()"><label for="brandSony">Sony</label></div>
+      <div class="filter-check"><input type="checkbox" id="brandARRI" onchange="applyFilters()"><label for="brandARRI">ARRI</label></div>
+      <div class="filter-check"><input type="checkbox" id="brandCanon" onchange="applyFilters()"><label for="brandCanon">Canon</label></div>
+      <div class="filter-check"><input type="checkbox" id="brandZEISS" onchange="applyFilters()"><label for="brandZEISS">ZEISS</label></div>
+      <div class="filter-check"><input type="checkbox" id="brandDJI" onchange="applyFilters()"><label for="brandDJI">DJI</label></div>
+      <div class="filter-check"><input type="checkbox" id="brandAputure" onchange="applyFilters()"><label for="brandAputure">Aputure</label></div>
+    </div>
+
+    <!-- Price Range -->
+    <div class="filter-panel">
+      <h4>Price Range</h4>
+      <div class="price-range">
+        <input type="number" class="price-input" id="minPrice" placeholder="Min ₹">
+        <span class="u-text-muted">—</span>
+        <input type="number" class="price-input" id="maxPrice" placeholder="Max ₹">
+      </div>
+      <button class="btn-apply" onclick="applyFilters()">Apply Filters</button>
+      <button class="btn-clear" onclick="clearFilters()">Clear All Filters</button>
+    </div>
+  </aside>
+
+  <!-- PRODUCTS AREA -->
+  <div>
+    <!-- Top Bar -->
+    <div class="shop-topbar">
+      <div class="search-wrap">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" class="search-field" id="searchInput" placeholder="Search cameras, lenses, lights..." oninput="debounceSearch()">
+      </div>
+      <div class="sort-controls">
+        <span class="results-info" id="resultsInfo">Loading...</span>
+        <select class="sort-select" id="sortSelect" onchange="applyFilters()" title="Sort products">
+          <option value="created_at">Latest</option>
+          <option value="price">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+          <option value="rating">Top Rated</option>
+          <option value="sales_count">Best Sellers</option>
+        </select>
+        <div class="view-btns">
+          <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')" title="Grid View"><i class="fas fa-th-large"></i></button>
+          <button class="view-btn" id="listViewBtn" onclick="setView('list')" title="List View"><i class="fas fa-list"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Container -->
+    <div id="productsContainer" class="products-grid">
+      <div class="loading-state u-grid-full"><div class="spinner u-spinner-large"></div><p class="u-text-center-muted">Loading equipment...</p></div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-wrap" id="paginationWrap"></div>
+  </div>
+</div>
+
+<!-- CART, AUTH, RENT, TOAST (same as index.html) -->
+<div class="sidebar-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<aside class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header"><h3>Your Cart</h3><button class="icon-btn" onclick="closeCart()" title="Close Cart"><i class="fas fa-times"></i></button></div>
+  <div class="cart-items" id="cartItems"><div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">Cart is empty</div></div></div>
+  <div class="cart-footer"><div class="cart-total-row"><span class="cart-total-label">Total</span><span class="cart-total-value" id="cartTotal">₹0.00</span></div><button class="btn-checkout" onclick="proceedToCheckout()"><i class="fas fa-lock me-2"></i>Checkout</button></div>
+</aside>
+
+<div id="authOverlay" class="modal-overlay u-hidden" onclick="closeAuth(event)">
+  <div class="modal-box u-modal-sm" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeAuth()"><i class="fas fa-times"></i></button>
+    <div class="auth-tabs"><button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button><button class="auth-tab" id="registerTab" onclick="switchAuthTab('register')">Register</button></div>
+    <div id="loginForm" class="auth-form"><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="loginEmail" placeholder="you@example.com"></div><div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="loginPass" placeholder="••••••••"></div><button class="btn-primary-ct u-btn-full" onclick="doLogin()">Login</button><p class="u-demo-text">Demo: admin@cinetools.com / admin123</p></div>
+    <div id="registerForm" class="auth-form u-hidden"><div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="regName"></div><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="regEmail"></div><div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="regPass"></div><button class="btn-primary-ct u-btn-full" onclick="doRegister()">Create Account</button></div>
+  </div>
+</div>
+
+<div id="rentOverlay" class="modal-overlay u-hidden" onclick="closeRentModal(event)">
+  <div class="modal-box u-modal-rent" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeRentModal()"><i class="fas fa-times"></i></button>
+    <h3 class="u-rent-title">Rent Equipment</h3>
+    <p id="rentProductName" class="u-rent-subtitle"></p>
+    <div class="rent-grid"><div class="rent-option selected" data-days="1"><div class="period">1 Day</div><div class="rent-price" id="rent1day"></div></div><div class="rent-option" data-days="3"><div class="period">3 Days</div><div class="rent-price" id="rent3day"></div><div class="savings">Save ~10%</div></div><div class="rent-option" data-days="7"><div class="period">1 Week</div><div class="rent-price" id="rent1week"></div><div class="savings">Best Value!</div></div><div class="rent-option" data-days="30"><div class="period">1 Month</div><div class="rent-price" id="rent1month"></div><div class="savings">Save ~40%</div></div></div>
+    <div class="u-form-mt"><label class="form-label">Start Date</label><input type="date" class="form-input u-date-input" id="rentStartDate"></div>
+    <div class="u-rent-total-box"><span class="u-rent-total-label">Total</span><span id="rentTotal" class="u-rent-total-value">₹0</span></div>
+    <button class="btn-primary-ct u-btn-mt" onclick="addRentToCart()"><i class="fas fa-calendar-plus me-2"></i>Add Rental to Cart</button>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const API = 'http://localhost:5000/api';
+let currentUser = null, cartData = [], rentProduct = null, selectedRentDays = 1;
+let currentPage = 1, totalPages = 1, currentView = 'grid';
+let searchTimeout = null;
+
+function getToken() { return localStorage.getItem('ct_token'); }
+function setToken(t) { localStorage.setItem('ct_token', t); }
+function clearToken() { localStorage.removeItem('ct_token'); }
+async function api(path, opts={}) {
+  const token = getToken();
+  const headers = {'Content-Type':'application/json'};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(API+path, {headers,...opts});
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.msg||'Error');
+  return data;
+}
+function toast(msg, type='success') {
+  const c = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast-item ${type}`;
+  const ic = type==='success'?'#2ecc71':type==='error'?'var(--red)':'var(--gold)';
+  const fa = type==='success'?'check-circle':type==='error'?'exclamation-circle':'info-circle';
+  el.innerHTML = `<i class="fas fa-${fa}" style="color:${ic}"></i>${msg}`;
+  c.appendChild(el);
+  setTimeout(()=>el.remove(), 3500);
+}
+
+// Auth
+async function initAuth() {
+  if (!getToken()) { updateNavAuth(null); return; }
+  try { const d = await api('/auth/me'); currentUser = d.user; updateNavAuth(currentUser); loadCart(); }
+  catch { clearToken(); updateNavAuth(null); }
+}
+function updateNavAuth(user) {
+  const adminBtn = document.getElementById('adminNavBtn');
+  const loggedIn = document.getElementById('loggedInLinks');
+  const loggedOut = document.getElementById('loggedOutLinks');
+  const ddName = document.getElementById('ddName');
+  const ddEmail = document.getElementById('ddEmail');
+  if (user) { if(ddName)ddName.textContent=user.name; if(ddEmail)ddEmail.textContent=user.email; if(loggedIn)loggedIn.style.display='block'; if(loggedOut)loggedOut.style.display='none'; if(adminBtn)adminBtn.style.display=user.role==='admin'?'inline-flex':'none'; }
+  else { if(loggedIn)loggedIn.style.display='none'; if(loggedOut)loggedOut.style.display='block'; if(adminBtn)adminBtn.style.display='none'; }
+}
+function openAuth(tab='login') { document.getElementById('authOverlay').style.display='flex'; switchAuthTab(tab); }
+function closeAuth(e) { if(!e||e.target===document.getElementById('authOverlay')) document.getElementById('authOverlay').style.display='none'; }
+function switchAuthTab(tab) {
+  document.getElementById('loginTab').classList.toggle('active',tab==='login');
+  document.getElementById('registerTab').classList.toggle('active',tab==='register');
+  document.getElementById('loginForm').style.display=tab==='login'?'block':'none';
+  document.getElementById('registerForm').style.display=tab==='register'?'block':'none';
+}
+async function doLogin() {
+  const email=document.getElementById('loginEmail').value, password=document.getElementById('loginPass').value;
+  try { const d=await api('/auth/login',{method:'POST',body:JSON.stringify({email,password})}); setToken(d.token); currentUser=d.user; updateNavAuth(currentUser); closeAuth(); toast(`Welcome back, ${d.user.name}!`); loadCart(); }
+  catch(e) { toast(e.message,'error'); }
+}
+async function doRegister() {
+  const name=document.getElementById('regName').value,email=document.getElementById('regEmail').value,password=document.getElementById('regPass').value;
+  try { const d=await api('/auth/register',{method:'POST',body:JSON.stringify({name,email,password})}); setToken(d.token); currentUser=d.user; updateNavAuth(currentUser); closeAuth(); toast('Account created!'); loadCart(); }
+  catch(e) { toast(e.message,'error'); }
+}
+function logout() { clearToken(); currentUser=null; updateNavAuth(null); cartData=[]; renderCartCount(); toast('Logged out'); toggleUserMenu(); }
+function toggleUserMenu() { const dd=document.getElementById('userDropdown'); dd.style.display=dd.style.display==='none'?'block':'none'; }
+document.addEventListener('click',e=>{ const dd=document.getElementById('userDropdown'),btn=document.getElementById('userBtn'); if(dd&&btn&&!dd.contains(e.target)&&!btn.contains(e.target)) dd.style.display='none'; });
+
+// Cart
+function openCart() { document.getElementById('cartSidebar').classList.add('open'); document.getElementById('cartOverlay').classList.add('show'); if(getToken()) loadCart(); }
+function closeCart() { document.getElementById('cartSidebar').classList.remove('open'); document.getElementById('cartOverlay').classList.remove('show'); }
+async function loadCart() {
+  if (!getToken()) return;
+  try { const d=await api('/cart'); cartData=d.cart; renderCart(d.cart,d.total); renderCartCount(); } catch {}
+}
+function renderCart(items, total) {
+  const el=document.getElementById('cartItems'), totEl=document.getElementById('cartTotal');
+  if(totEl) totEl.textContent=`₹${parseFloat(total).toLocaleString('en-IN',{minimumFractionDigits:2})}`;
+  if(!items||!items.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">Cart is empty</div></div>`; return; }
+  el.innerHTML=items.map(i=>{const p=i.product; const price=i.type==='rent'?(p.rent_price_day*(i.rent_days||1)*i.quantity):(p.price*i.quantity); return `<div class="cart-item"><img class="cart-item-img" src="${p.images?.[0]||''}" alt="${p.name}"><div style="flex:1"><div class="cart-item-name">${p.name}</div><div class="cart-item-type">${i.type==='rent'?`🔄 Rent·${i.rent_days}d`:'💳 Buy'}</div><div class="cart-item-price">₹${price.toFixed(2)}</div></div><button onclick="removeFromCart('${i.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer"><i class="fas fa-trash-alt"></i></button></div>`;}).join('');
+}
+function renderCartCount() { const b=document.getElementById('cartCount'); if(!b) return; b.textContent=cartData.length; b.style.display=cartData.length>0?'flex':'none'; }
+async function removeFromCart(cid) { try { await api(`/cart/${cid}`,{method:'DELETE'}); await loadCart(); toast('Removed'); } catch(e){toast(e.message,'error');} }
+async function addToCart(pid,type='buy',rentDays=1,startDate=null,endDate=null) {
+  if(!getToken()){openAuth('login');return;}
+  try { await api('/cart',{method:'POST',body:JSON.stringify({product_id:pid,type,quantity:1,rent_days:rentDays,rent_start:startDate,rent_end:endDate})}); await loadCart(); toast(type==='rent'?'📅 Rental added!':'🛒 Added to cart!'); openCart(); }
+  catch(e){toast(e.message,'error');}
+}
+function proceedToCheckout() { if(!getToken()){closeCart();openAuth('login');return;} if(!cartData.length){toast('Cart is empty','error');return;} window.location.href='checkout.html'; }
+
+// Rent Modal
+function openRentModal(product) {
+  if(!getToken()){openAuth('login');return;}
+  rentProduct=product; selectedRentDays=1;
+  document.getElementById('rentProductName').textContent=product.name;
+  document.getElementById('rent1day').textContent=`₹${product.rent_price_day}/day`;
+  document.getElementById('rent3day').textContent=`₹${(product.rent_price_day*3).toFixed(0)}`;
+  document.getElementById('rent1week').textContent=`₹${product.rent_price_week||(product.rent_price_day*7*0.85).toFixed(0)}`;
+  document.getElementById('rent1month').textContent=`₹${(product.rent_price_day*30*0.65).toFixed(0)}`;
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('rentStartDate').min=today; document.getElementById('rentStartDate').value=today;
+  document.querySelectorAll('.rent-option').forEach(el=>{ el.classList.toggle('selected',parseInt(el.dataset.days)===1); el.onclick=()=>selectRentPeriod(el,parseInt(el.dataset.days)); });
+  updateRentTotal(); document.getElementById('rentOverlay').style.display='flex';
+}
+function selectRentPeriod(el,days) { document.querySelectorAll('.rent-option').forEach(e=>e.classList.remove('selected')); el.classList.add('selected'); selectedRentDays=days; updateRentTotal(); }
+function updateRentTotal() { if(!rentProduct) return; let p; if(selectedRentDays>=30) p=rentProduct.rent_price_day*30*0.65; else if(selectedRentDays>=7) p=rentProduct.rent_price_week||rentProduct.rent_price_day*7*0.85; else p=rentProduct.rent_price_day*selectedRentDays; document.getElementById('rentTotal').textContent=`₹${p.toFixed(0)}`; }
+function closeRentModal(e) { if(!e||e.target===document.getElementById('rentOverlay')) document.getElementById('rentOverlay').style.display='none'; }
+async function addRentToCart() { if(!rentProduct) return; const start=document.getElementById('rentStartDate').value; const end=new Date(start); end.setDate(end.getDate()+selectedRentDays); await addToCart(rentProduct.id,'rent',selectedRentDays,start,end.toISOString().split('T')[0]); closeRentModal(); }
+
+// Shop filters & products
+function setView(v) {
+  currentView=v;
+  document.getElementById('gridViewBtn').classList.toggle('active',v==='grid');
+  document.getElementById('listViewBtn').classList.toggle('active',v==='list');
+  applyFilters();
+}
+function debounceSearch() { clearTimeout(searchTimeout); searchTimeout=setTimeout(()=>{currentPage=1;applyFilters();},400); }
+function clearCatFilters() { document.querySelectorAll('[id^="cat"]:not(#catAll)').forEach(cb=>cb.checked=false); applyFilters(); }
+function clearFilters() {
+  document.getElementById('catAll').checked=true;
+  document.querySelectorAll('[id^="cat"]:not(#catAll)').forEach(cb=>cb.checked=false);
+  document.querySelectorAll('[id^="brand"]').forEach(cb=>cb.checked=false);
+  document.getElementById('allType').checked=true;
+  document.getElementById('minPrice').value=''; document.getElementById('maxPrice').value='';
+  document.getElementById('searchInput').value=''; document.getElementById('sortSelect').value='created_at';
+  currentPage=1; applyFilters();
+}
+
+async function applyFilters() {
+  const params = new URLSearchParams();
+  const search = document.getElementById('searchInput').value;
+  if (search) params.set('search', search);
+  // Type
+  if (document.getElementById('rentOnly').checked) params.set('can_rent','true');
+  else if (document.getElementById('buyOnly').checked) params.set('can_buy','true');
+  // Category from checkboxes
+  const activeCats = [...document.querySelectorAll('[id^="catCb"]:checked')].map(cb=>cb.dataset.cat);
+  if (activeCats.length) params.set('category', activeCats[0]);
+  // Brand
+  const brands = ['Sony','ARRI','Canon','ZEISS','DJI','Aputure'].filter(b=>document.getElementById('brand'+b)?.checked);
+  if (brands.length === 1) params.set('brand', brands[0]);
+  // Price
+  const min=document.getElementById('minPrice').value, max=document.getElementById('maxPrice').value;
+  if (min) params.set('min_price',min); if (max) params.set('max_price',max);
+  // Sort
+  const sort = document.getElementById('sortSelect').value;
+  if (sort === 'price_desc') { params.set('sort','price'); params.set('order','desc'); }
+  else if (sort) { params.set('sort',sort); params.set('order', sort==='created_at'?'desc':'asc'); }
+  params.set('page', currentPage); params.set('per_page', 12);
+
+  const container = document.getElementById('productsContainer');
+  container.innerHTML = `<div class="loading-state" style="grid-column:1/-1"><div class="spinner" style="width:40px;height:40px;border-width:3px"></div></div>`;
+  try {
+    const d = await api('/products?'+params.toString());
+    totalPages = d.pages;
+    document.getElementById('resultsInfo').textContent = `${d.total} products`;
+    renderProductsList(d.items, container);
+    renderPagination();
+  } catch(e) {
+    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">⚠️</div><div class="empty-title">Backend offline</div><div class="empty-desc">Run: python backend/app.py</div></div>`;
+  }
+}
+
+function renderProductsList(products, container) {
+  if (!products || !products.length) {
+    container.className=''; container.innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No products found</div><div class="empty-desc">Try adjusting your filters</div></div>`;
+    return;
+  }
+  if (currentView === 'list') {
+    container.className='products-list';
+    container.innerHTML = products.map(p=>`
+    <div class="product-card-list" onclick="window.location='product.html?id=${p.id}'">
+      <img class="list-img" src="${p.images?.[0]||''}" alt="${p.name}">
+      <div class="list-body">
+        <div style="font-size:0.7rem;color:var(--gold-dim);text-transform:uppercase;letter-spacing:2px;margin-bottom:0.3rem">${p.brand||p.category}</div>
+        <div style="font-weight:700;font-size:1rem;color:var(--white);margin-bottom:0.5rem">${p.name}</div>
+        <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.5rem"><span style="color:var(--gold)">${'★'.repeat(Math.round(p.rating||0))}</span><span style="font-size:0.75rem;color:var(--muted)">${p.rating||0} (${p.reviews_count||0} reviews)</span></div>
+        <div style="font-size:0.82rem;color:var(--muted);line-height:1.5">${p.description?.slice(0,120)}...</div>
+      </div>
+      <div class="list-actions" onclick="event.stopPropagation()">
+        <div style="font-family:var(--font-mono);font-size:1.3rem;color:var(--white);text-align:right">${p.can_buy?'₹'+p.price.toLocaleString():''}</div>
+        <div style="font-size:0.78rem;color:var(--muted);text-align:right;margin-bottom:0.75rem">${p.can_rent?'₹'+p.rent_price_day+'/day':''}</div>
+        ${p.can_buy?`<button class="btn-cart" style="width:120px" onclick="addToCart('${p.id}','buy')">Buy</button>`:''}
+        ${p.can_rent?`<button class="btn-rent" style="width:120px" onclick="openRentModal(${JSON.stringify(p).replace(/"/g,'&quot;')})">Rent</button>`:''}
+      </div>
+    </div>`).join('');
+  } else {
+    container.className='products-grid';
+    container.innerHTML = products.map(p=>`
+    <div class="product-card" onclick="window.location='product.html?id=${p.id}'">
+      <div class="product-img-wrap">
+        <img src="${p.images?.[0]||''}" alt="${p.name}" loading="lazy">
+        ${p.badge?`<span class="product-badge">${p.badge}</span>`:''}
+        <button class="wishlist-btn" onclick="event.stopPropagation();toggleWishlistItem('${p.id}')"><i class="fas fa-heart"></i></button>
+        ${p.can_rent?`<span class="rent-tag">From ₹${p.rent_price_day}/day</span>`:''}
+        ${p.stock===0?`<div class="out-of-stock"><span>Out of Stock</span></div>`:''}
+      </div>
+      <div class="product-body">
+        <div class="product-brand">${p.brand||p.category}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-rating"><span class="stars">${'★'.repeat(Math.round(p.rating||0))}${'☆'.repeat(5-Math.round(p.rating||0))}</span><span class="rating-count">${p.rating||0} (${p.reviews_count||0})</span></div>
+        <div class="product-price"><span class="price-buy">${p.can_buy?'₹'+p.price.toLocaleString():'Rent Only'}</span>${p.can_rent?`<span class="price-rent">₹${p.rent_price_day}/day</span>`:''}</div>
+        <div class="product-actions" onclick="event.stopPropagation()">
+          ${p.can_buy&&p.stock>0?`<button class="btn-cart" onclick="addToCart('${p.id}','buy')"><i class="fas fa-shopping-bag me-1"></i>Buy</button>`:''}
+          ${p.can_rent?`<button class="btn-rent" onclick="openRentModal(${JSON.stringify(p).replace(/"/g,'&quot;')})"><i class="fas fa-calendar me-1"></i>Rent</button>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+  }
+}
+
+function renderPagination() {
+  const el = document.getElementById('paginationWrap');
+  if (totalPages <= 1) { el.innerHTML=''; return; }
+  let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''} style="${currentPage===1?'opacity:0.3;cursor:default':''}"><i class="fas fa-chevron-left"></i></button>`;
+  for (let i=1;i<=Math.min(totalPages,7);i++) {
+    html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''} style="${currentPage===totalPages?'opacity:0.3;cursor:default':''}"><i class="fas fa-chevron-right"></i></button>`;
+  el.innerHTML = html;
+}
+function goPage(p) { if(p<1||p>totalPages)return; currentPage=p; applyFilters(); window.scrollTo(0,0); }
+
+async function loadCategories() {
+  try {
+    const d = await api('/categories');
+    const cf = document.getElementById('catFilters');
+    cf.innerHTML = `<div class="filter-check"><input type="checkbox" id="catAll" checked onchange="clearCatFilters()"><label for="catAll">All Categories</label></div>` +
+      d.categories.map(c=>`<div class="filter-check"><input type="checkbox" id="catCb${c.name}" data-cat="${c.name}" onchange="catChanged()"><label for="catCb${c.name}">${c.name}<span class="count ms-1">${c.count}</span></label></div>`).join('');
+  } catch {}
+}
+function catChanged() { document.getElementById('catAll').checked=false; currentPage=1; applyFilters(); }
+
+async function toggleWishlistItem(pid) {
+  if(!getToken()){openAuth('login');return;}
+  try { const d=await api('/wishlist',{method:'POST',body:JSON.stringify({product_id:pid})}); toast(d.added?'❤️ Added to wishlist':'Removed from wishlist'); } catch(e){toast(e.message,'error');}
+}
+
+// URL params on load
+function readUrlParams() {
+  const p = new URLSearchParams(window.location.search);
+  if (p.get('type')==='rent') {
+    document.getElementById('rentOnly').checked=true;
+    document.getElementById('pageTitle').textContent='Rental Equipment';
+    document.getElementById('pageSubtitle').textContent='Rent professional cinema gear by the day, week, or month';
+  }
+  if (p.get('cat')) {
+    const cat=p.get('cat');
+    document.getElementById('pageTitle').textContent=cat;
+  }
+  if (p.get('search')) document.getElementById('searchInput').value=p.get('search');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initAuth(); loadCategories(); readUrlParams(); applyFilters();
+});
+</script>
+</body>
+</html>

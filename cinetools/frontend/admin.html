@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — CineTools</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --black:#080808;--dark:#0f0f0f;--card:#141414;--card2:#1a1a1a;--border:#252525;
+  --gold:#d4a843;--gold-dim:#a07830;--red:#e84040;--green:#2ecc71;--blue:#3a8afd;--purple:#8a3afd;
+  --text:#e0e0e0;--muted:#777;--white:#fff;
+  --font-display:'Bebas Neue',sans-serif;--font-body:'DM Sans',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --sw:260px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--black);color:var(--text);font-family:var(--font-body);display:flex;min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--dark);}::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:3px;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sw);background:var(--dark);border-right:1px solid var(--border);height:100vh;position:fixed;left:0;top:0;display:flex;flex-direction:column;z-index:200;overflow-y:auto;transition:transform .3s;}
+.s-logo{padding:1.4rem 1.5rem;border-bottom:1px solid var(--border);}
+.s-logo a{font-family:var(--font-display);font-size:1.6rem;letter-spacing:3px;color:var(--white);text-decoration:none;}
+.s-logo a span{color:var(--gold);}
+.s-logo p{font-size:.6rem;font-family:var(--font-mono);color:var(--gold);letter-spacing:3px;margin-top:.15rem;}
+.s-sect{padding:.4rem 0;}
+.s-sect-lbl{padding:.4rem 1.25rem;font-size:.6rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:3px;}
+.si{display:flex;align-items:center;gap:.7rem;padding:.68rem 1.25rem;color:var(--muted);cursor:pointer;transition:all .18s;font-size:.83rem;border-left:3px solid transparent;text-decoration:none;user-select:none;}
+.si:hover{color:var(--text);background:rgba(255,255,255,.03);}
+.si.active{color:var(--gold);background:rgba(212,168,67,.07);border-left-color:var(--gold);}
+.si i{width:18px;text-align:center;flex-shrink:0;}
+.si .badge-c{margin-left:auto;background:var(--red);color:#fff;font-size:.58rem;font-weight:700;padding:.13rem .38rem;border-radius:100px;min-width:18px;text-align:center;}
+.s-footer{margin-top:auto;padding:1rem 1.25rem;border-top:1px solid var(--border);}
+.s-user{display:flex;align-items:center;gap:.7rem;}
+.s-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{background:var(--dark);border-bottom:1px solid var(--border);padding:0 2rem;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.topbar h2{font-family:var(--font-display);font-size:1.4rem;letter-spacing:2px;color:var(--white);}
+.tb-actions{display:flex;align-items:center;gap:.75rem;}
+.tb-btn{background:var(--gold);color:var(--black);padding:.42rem 1rem;border:none;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:all .18s;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;}
+.tb-btn:hover{background:#e8bc55;color:var(--black);}
+.tb-btn.sec{background:var(--card);border:1px solid var(--border);color:var(--text);}
+.tb-btn.sec:hover{border-color:var(--gold);color:var(--gold);}
+.tb-btn.danger{background:rgba(232,64,64,.1);border:1px solid var(--red);color:var(--red);}
+.tb-btn.danger:hover{background:var(--red);color:#fff;}
+.content{padding:2rem;flex:1;}
+
+/* ── TABS ── */
+.tab-pane{display:none;}.tab-pane.active{display:block;}
+.page-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:2rem;gap:0;}
+.page-tab{padding:.65rem 1.25rem;border:none;background:none;color:var(--muted);font-family:var(--font-body);font-size:.82rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap;}
+.page-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+/* ── STATS GRID ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-bottom:2rem;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;position:relative;overflow:hidden;transition:border-color .2s;}
+.stat-card:hover{border-color:var(--border);}
+.stat-card::after{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;opacity:.07;}
+.stat-card.gold::after{background:var(--gold);}
+.stat-card.blue::after{background:var(--blue);}
+.stat-card.green::after{background:var(--green);}
+.stat-card.red::after{background:var(--red);}
+.s-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;margin-bottom:1rem;}
+.s-icon.gold{background:rgba(212,168,67,.12);color:var(--gold);}
+.s-icon.blue{background:rgba(58,138,253,.12);color:var(--blue);}
+.s-icon.green{background:rgba(46,204,113,.12);color:var(--green);}
+.s-icon.red{background:rgba(232,64,64,.12);color:var(--red);}
+.s-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:2px;}
+.s-value{font-family:var(--font-display);font-size:2.2rem;color:var(--white);line-height:1;margin:.25rem 0;}
+.s-sub{font-size:.72rem;color:var(--muted);}
+
+/* ── CHARTS ── */
+.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:1.25rem;margin-bottom:2rem;}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;}
+.chart-card h4{font-size:.84rem;font-weight:700;color:var(--white);margin-bottom:1.25rem;}
+
+/* ── DATA TABLE ── */
+.dt-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem;}
+.dt-head{padding:1.1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.dt-head h4{font-size:.88rem;font-weight:700;color:var(--white);}
+.dt-head .right{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;}
+.dt{width:100%;border-collapse:collapse;}
+.dt th{padding:.7rem 1rem;text-align:left;font-size:.67rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid var(--border);background:rgba(0,0,0,.2);white-space:nowrap;}
+.dt td{padding:.85rem 1rem;font-size:.82rem;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle;}
+.dt tr:last-child td{border-bottom:none;}
+.dt tr:hover td{background:rgba(255,255,255,.018);}
+.t-img-row{display:flex;align-items:center;gap:.7rem;}
+.t-img{width:42px;height:42px;border-radius:6px;object-fit:cover;flex-shrink:0;}
+.t-name{font-weight:600;color:var(--white);font-size:.84rem;}
+.t-sub{font-size:.7rem;color:var(--muted);}
+
+/* ── BADGES ── */
+.bdg{padding:.22rem .6rem;border-radius:100px;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
+.bdg.pending{background:rgba(255,193,7,.12);color:#ffc107;}
+.bdg.processing{background:rgba(58,138,253,.12);color:var(--blue);}
+.bdg.shipped{background:rgba(138,58,253,.12);color:var(--purple);}
+.bdg.delivered{background:rgba(46,204,113,.12);color:var(--green);}
+.bdg.cancelled{background:rgba(232,64,64,.12);color:var(--red);}
+.bdg.active{background:rgba(46,204,113,.12);color:var(--green);}
+.bdg.inactive{background:rgba(100,100,100,.12);color:var(--muted);}
+.bdg.low{background:rgba(232,64,64,.12);color:var(--red);}
+.bdg.admin{background:rgba(212,168,67,.12);color:var(--gold);}
+.bdg.customer{background:rgba(58,138,253,.12);color:var(--blue);}
+
+/* ── ACTION BUTTONS ── */
+.ab{background:none;border:1px solid var(--border);color:var(--muted);padding:.28rem .6rem;border-radius:5px;cursor:pointer;font-size:.72rem;transition:all .18s;margin-left:.2rem;display:inline-flex;align-items:center;gap:.3rem;}
+.ab:hover{border-color:var(--gold);color:var(--gold);}
+.ab.d:hover{border-color:var(--red);color:var(--red);}
+.ab.g:hover{border-color:var(--green);color:var(--green);}
+
+/* ── FORM CONTROLS ── */
+.fi{width:100%;background:var(--dark);border:1px solid var(--border);color:var(--text);padding:.7rem 1rem;border-radius:6px;font-family:var(--font-body);font-size:.86rem;transition:border-color .2s;}
+.fi:focus{outline:none;border-color:var(--gold-dim);}
+.fl{display:block;font-size:.74rem;color:var(--muted);margin-bottom:.4rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;}
+.fg{margin-bottom:1rem;}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.tbl-search{background:var(--dark);border:1px solid var(--border);color:var(--text);padding:.5rem .9rem;border-radius:6px;font-size:.8rem;font-family:var(--font-body);min-width:200px;}
+.tbl-search:focus{outline:none;border-color:var(--gold-dim);}
+.fi-sm{background:var(--dark);border:1px solid var(--border);color:var(--text);padding:.3rem .65rem;border-radius:5px;font-family:var(--font-body);font-size:.78rem;cursor:pointer;}
+.fi-sm:focus{outline:none;border-color:var(--gold-dim);}
+.checkbox-row{display:flex;align-items:center;gap:.7rem;padding:.75rem;background:var(--dark);border:1px solid var(--border);border-radius:6px;}
+.checkbox-row input{accent-color:var(--gold);width:16px;height:16px;flex-shrink:0;}
+.checkbox-row label{font-size:.84rem;cursor:pointer;}
+
+/* ── MODAL ── */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.87);z-index:2000;display:flex;align-items:center;justify-content:center;padding:1rem;}
+.modal-bx{background:var(--dark);border:1px solid var(--border);border-radius:14px;width:100%;max-height:92vh;overflow-y:auto;position:relative;padding:2rem;}
+.modal-close{position:absolute;top:1.25rem;right:1.25rem;background:var(--card);border:1px solid var(--border);color:var(--text);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;z-index:1;}
+.modal-close:hover{color:var(--red);}
+.modal-title{font-family:var(--font-display);font-size:1.8rem;letter-spacing:2px;color:var(--white);margin-bottom:1.5rem;}
+
+/* ── TOAST ── */
+.toast-c{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem;}
+.toast-i{background:var(--card);border:1px solid var(--border);color:var(--text);padding:.9rem 1.25rem;border-radius:8px;font-size:.84rem;display:flex;align-items:center;gap:.6rem;box-shadow:0 8px 32px rgba(0,0,0,.5);animation:sIn .3s ease;max-width:300px;}
+.toast-i.s{border-color:var(--green);}
+.toast-i.e{border-color:var(--red);}
+.toast-i.w{border-color:var(--gold);}
+@keyframes sIn{from{transform:translateX(110%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+
+/* ── SPINNER ── */
+.spinner{display:inline-block;border-radius:50%;animation:spin .7s linear infinite;}
+.spinner.sm{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--gold);}
+.spinner.lg{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--gold);}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── EMPTY STATE ── */
+.empty-st{text-align:center;padding:4rem 2rem;}
+.empty-st .ei{font-size:3rem;opacity:.18;margin-bottom:1rem;}
+.empty-st h3{font-family:var(--font-display);font-size:1.6rem;letter-spacing:2px;color:var(--white);margin-bottom:.5rem;}
+.empty-st p{color:var(--muted);font-size:.84rem;}
+
+/* ── PRODUCT IMAGE PREVIEW ── */
+.img-preview{width:100%;height:180px;object-fit:cover;border-radius:8px;border:1px solid var(--border);display:none;margin-top:.75rem;}
+
+/* ── QUICK STATS ROW ── */
+.quick-stats{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+.qs{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.75rem 1.25rem;display:flex;align-items:center;gap:.75rem;flex:1;min-width:120px;}
+.qs i{color:var(--gold);}
+.qs .qv{font-family:var(--font-mono);font-size:1.1rem;font-weight:700;color:var(--white);}
+.qs .ql{font-size:.72rem;color:var(--muted);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1200px){.stats-grid{grid-template-columns:1fr 1fr;}.charts-row{grid-template-columns:1fr;}}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;}.stats-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar" id="adminSidebar">
+  <div class="s-logo">
+    <a href="index.html">Cine<span>Tools</span></a>
+    <p>Admin Panel</p>
+  </div>
+
+  <div class="s-sect">
+    <div class="s-sect-lbl">Overview</div>
+    <a class="si active" id="nav-dashboard" onclick="showTab('dashboard',this)">
+      <i class="fas fa-chart-line"></i>Dashboard
+    </a>
+  </div>
+
+  <div class="s-sect">
+    <div class="s-sect-lbl">Catalog</div>
+    <a class="si" id="nav-products" onclick="showTab('products',this)">
+      <i class="fas fa-camera"></i>Products
+    </a>
+    <a class="si" id="nav-categories" onclick="showTab('categories',this)">
+      <i class="fas fa-tags"></i>Categories
+    </a>
+  </div>
+
+  <div class="s-sect">
+    <div class="s-sect-lbl">Sales</div>
+    <a class="si" id="nav-orders" onclick="showTab('orders',this)">
+      <i class="fas fa-shopping-bag"></i>Orders
+      <span class="badge-c" id="pendingBadge" style="display:none">0</span>
+    </a>
+    <a class="si" id="nav-rentals" onclick="showTab('rentals',this)">
+      <i class="fas fa-calendar-alt"></i>Rentals
+    </a>
+  </div>
+
+  <div class="s-sect">
+    <div class="s-sect-lbl">Marketing</div>
+    <a class="si" id="nav-coupons" onclick="showTab('coupons',this)">
+      <i class="fas fa-ticket-alt"></i>Coupons
+    </a>
+    <a class="si" id="nav-reviews" onclick="showTab('reviews',this)">
+      <i class="fas fa-star"></i>Reviews
+    </a>
+  </div>
+
+  <div class="s-sect">
+    <div class="s-sect-lbl">Users</div>
+    <a class="si" id="nav-users" onclick="showTab('users',this)">
+      <i class="fas fa-users"></i>Customers
+    </a>
+  </div>
+
+  <div class="s-sect">
+    <div class="s-sect-lbl">Store</div>
+    <a class="si" href="index.html" target="_blank">
+      <i class="fas fa-external-link-alt"></i>View Store
+    </a>
+  </div>
+
+  <div class="s-footer">
+    <div class="s-user">
+      <img class="s-avatar" id="adminAvatar" src="https://ui-avatars.com/api/?name=Admin&background=d4a843&color=000" alt="">
+      <div>
+        <div style="font-weight:700;font-size:.82rem;color:var(--white)" id="adminName">Admin</div>
+        <div style="font-size:.68rem;color:var(--muted)" id="adminEmail">—</div>
+      </div>
+    </div>
+    <a href="#" onclick="logout()" style="display:flex;align-items:center;gap:.5rem;margin-top:.9rem;color:var(--red);font-size:.78rem;text-decoration:none;">
+      <i class="fas fa-sign-out-alt"></i>Logout
+    </a>
+  </div>
+</aside>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<div class="main">
+  <!-- Topbar -->
+  <div class="topbar">
+    <h2 id="topbarTitle">Dashboard</h2>
+    <div class="tb-actions">
+      <button class="tb-btn" onclick="showTab('products',document.getElementById('nav-products'));openAddProduct()">
+        <i class="fas fa-plus"></i>Add Product
+      </button>
+      <button class="tb-btn sec" onclick="loadDashboard()">
+        <i class="fas fa-sync-alt"></i>Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- ══════════════════════════════════
+       TAB: DASHBOARD
+  ══════════════════════════════════ -->
+  <div id="tab-dashboard" class="tab-pane active">
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card gold">
+        <div class="s-icon gold"><i class="fas fa-indian-rupee"></i></div>
+        <div class="s-label">Total Revenue</div>
+        <div class="s-value" id="s-revenue">₹0</div>
+        <div class="s-sub">From paid orders</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="s-icon blue"><i class="fas fa-shopping-bag"></i></div>
+        <div class="s-label">Total Orders</div>
+        <div class="s-value" id="s-orders">0</div>
+        <div class="s-sub" id="s-pending-txt">0 pending</div>
+      </div>
+      <div class="stat-card green">
+        <div class="s-icon green"><i class="fas fa-box"></i></div>
+        <div class="s-label">Products</div>
+        <div class="s-value" id="s-products">0</div>
+        <div class="s-sub" id="s-stock-txt">0 low stock</div>
+      </div>
+      <div class="stat-card red">
+        <div class="s-icon red"><i class="fas fa-users"></i></div>
+        <div class="s-label">Customers</div>
+        <div class="s-value" id="s-customers">0</div>
+        <div class="s-sub">Registered users</div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <h4><i class="fas fa-chart-line" style="color:var(--gold);margin-right:.5rem"></i>Monthly Revenue</h4>
+        <canvas id="revenueChart" height="120"></canvas>
+      </div>
+      <div class="chart-card">
+        <h4><i class="fas fa-chart-donut" style="color:var(--gold);margin-right:.5rem"></i>Orders by Status</h4>
+        <canvas id="statusChart" height="170"></canvas>
+      </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="dt-wrap">
+      <div class="dt-head">
+        <h4>Recent Orders</h4>
+        <button class="tb-btn sec" onclick="showTab('orders',document.getElementById('nav-orders'))">
+          View All <i class="fas fa-arrow-right ms-1"></i>
+        </button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="dt">
+          <thead>
+            <tr>
+              <th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Update Status</th>
+            </tr>
+          </thead>
+          <tbody id="recentOrdersBody">
+            <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted)"><div class="spinner sm"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Low Stock -->
+    <div class="dt-wrap">
+      <div class="dt-head">
+        <h4>⚠️ Low Stock Alert <span style="font-size:.72rem;color:var(--muted);font-weight:400">(stock &lt; 3)</span></h4>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="dt">
+          <thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Buy Price</th><th>Rent/day</th><th>Action</th></tr></thead>
+          <tbody id="lowStockBody"><tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--muted)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /dashboard -->
+
+
+  <!-- ══════════════════════════════════
+       TAB: PRODUCTS
+  ══════════════════════════════════ -->
+  <div id="tab-products" class="tab-pane">
+    <div class="dt-wrap">
+      <div class="dt-head">
+        <h4>All Products (<span id="prodCount">0</span>)</h4>
+        <div class="right">
+          <input class="tbl-search" placeholder="Search products..." oninput="filterProdTable(this.value)">
+          <select class="fi-sm" onchange="filterProdByCategory(this.value)" id="prodCatFilter">
+            <option value="">All Categories</option>
+            <option>Cameras</option><option>Lenses</option><option>Lighting</option>
+            <option>Audio</option><option>Stabilizers</option><option>Monitors</option><option>Accessories</option>
+          </select>
+          <button class="tb-btn" onclick="openAddProduct()"><i class="fas fa-plus me-1"></i>Add Product</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="dt">
+          <thead>
+            <tr>
+              <th>Product</th><th>Category</th><th>Buy Price</th><th>Rent/day</th>
+              <th>Rent/wk</th><th>Stock</th><th>Sales</th><th>Rating</th><th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productsBody">
+            <tr><td colspan="10" style="text-align:center;padding:2rem;color:var(--muted)"><div class="spinner sm"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /products -->
+
+
+  <!-- ══════════════════════════════════
+       TAB: ORDERS
+  ══════════════════════════════════ -->
+  <div id="tab-orders" class="tab-pane">
+    <div class="dt-wrap">
+      <div class="dt-head">
+        <h4>All Orders (<span id="ordersCount">0</span>)</h4>
+        <div class="right">
+          <input class="tbl-search" placeholder="Search by order # or customer..." oninput="filterOrdersTable(this.value)">
+          <select class="fi-sm" onchange="filterOrdersByStatus(this.value)">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="processing">Processing</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <select class="fi-sm" onchange="filterOrdersByType(this.value)">
+            <option value="">All Types</option>
+            <option value="buy">Purchase</option>
+            <option value="rent">Rental</option>
+          </select>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="dt">
+          <thead>
+            <tr>
+              <th>Order #</th><th>Customer</th><th>Items</th><th>Subtotal</th>
+              <th>Discount</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th>Update</th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody">
+            <tr><td colspan="10" style="text-align:center;padding:2rem;color:var(--muted)"><div class="spinner sm"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /orders -->
+
+
+  <!-- ══════════════════════════════════
+       TAB: RENTALS
+  ══════════════════════════════════ -->
+  <div id="tab-rentals" class="tab-pane">
+    <div class="dt-wrap">
+      <div class="dt-head">
+        <h4>Rental Orders</h4>
+        <div class="right">
+          <input class="tbl-search" placeholder="Search rentals..." oninput="filterRentalsTable(this.value)">
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="dt">
+          <thead>
+            <tr>
+              <th>Order #</th><th>Customer</th><th>Product</th><th>Rental Days</th>
+              <th>Start</th><th>End</th><th>Total</th><th>Status</th><th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="rentalsBody">
+            <tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted)"><div class="spinner sm"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /rentals -->
+
+
+  <!-- ══════════════════════════════════
+       TAB: USERS
+  ══════════════════════════════════ -->
+  <div id="tab-users" class="tab-pane">
+    <div class="dt-wrap">
+      <div class="dt-head">
+        <h4>All Customers (<span id="usersCount">0</span>)</h4>
+        <div class="right">
+          <input class="tbl-search" placeholder="Search customers..." oninput="filterUsersTable(this.value)">
+          <select class="fi-sm" onchange="filterUsersByRole(this.value)">
+            <option value="">All Roles</option>
+            <option value="customer">Customer</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="dt">
+          <thead>
+            <tr><th>Customer</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th><th>Status</th></tr>
+          </thead>
+          <tbody id="usersBody">
+            <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted)"><div class="spinner sm"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /users -->
+
+
+  <!-- ══════════════════════════════════
+       TAB: COUPONS
+  ══════════════════════════════════ -->
+  <div id="tab-coupons" class="tab-pane">
+    <div class="dt-wrap">
+      <div class="dt-head">
+        <h4>Discount Coupons (<span id="couponsCount">0</span>)</h4>
+        <button class="tb-btn" onclick="openAddCoupon()"><i class="fas fa-plus me-1"></i>New Coupon</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="dt">
+          <thead>
+            <tr><th>Code</th><th>Type</th><th>Value</th><th>Min Order</th><th>Used / Max</th><th>Expires</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody id="couponsBody">
+            <tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--muted)"><div class="spinner sm"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /coupons -->
+
+
+  <!-- ══════════════════════════════════
+       TAB: REVIEWS
+  ══════════════════════════════════ -->
+  <div id="tab-reviews" class="tab-pane">
+    <div class="dt-wrap">
+      <div class="dt-head">
+        <h4>Customer Reviews (<span id="reviewsCount">0</span>)</h4>
+        <input class="tbl-search" placeholder="Search reviews..." oninput="filterReviewsTable(this.value)">
+      </div>
+      <div style="overflow-x:auto">
+        <table class="dt">
+          <thead>
+            <tr><th>Customer</th><th>Product</th><th>Rating</th><th>Review</th><th>Date</th></tr>
+          </thead>
+          <tbody id="reviewsBody">
+            <tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--muted)"><div class="spinner sm"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /reviews -->
+
+
+  <!-- ══════════════════════════════════
+       TAB: CATEGORIES
+  ══════════════════════════════════ -->
+  <div id="tab-categories" class="tab-pane">
+    <div class="dt-wrap">
+      <div class="dt-head">
+        <h4>Product Categories</h4>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="dt">
+          <thead><tr><th>#</th><th>Category</th><th>Products</th><th>Action</th></tr></thead>
+          <tbody id="catsBody">
+            <tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--muted)"><div class="spinner sm"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /categories -->
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+
+<!-- ═══════════════════════════════════════
+     MODAL: ADD / EDIT PRODUCT
+═══════════════════════════════════════ -->
+<div id="productModal" style="display:none" class="modal-ov" onclick="closeProductModal(event)">
+  <div class="modal-bx" style="max-width:680px" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeProductModal()"><i class="fas fa-times"></i></button>
+    <div class="modal-title" id="productModalTitle">Add Product</div>
+    <input type="hidden" id="editPid">
+
+    <div class="fg">
+      <label class="fl">Product Name *</label>
+      <input type="text" class="fi" id="pName" placeholder="e.g. Sony FX6 Cinema Camera">
+    </div>
+
+    <div class="fg2">
+      <div>
+        <label class="fl">Category *</label>
+        <select class="fi" id="pCategory">
+          <option>Cameras</option><option>Lenses</option><option>Lighting</option>
+          <option>Audio</option><option>Stabilizers</option><option>Monitors</option><option>Accessories</option>
+        </select>
+      </div>
+      <div>
+        <label class="fl">Brand</label>
+        <input type="text" class="fi" id="pBrand" placeholder="e.g. Sony">
+      </div>
+    </div>
+
+    <div class="fg3">
+      <div>
+        <label class="fl">Buy Price (₹) *</label>
+        <input type="number" class="fi" id="pPrice" placeholder="5999" min="0">
+      </div>
+      <div>
+        <label class="fl">Rent / Day ($)</label>
+        <input type="number" class="fi" id="pRentDay" placeholder="150" min="0">
+      </div>
+      <div>
+        <label class="fl">Rent / Week ($)</label>
+        <input type="number" class="fi" id="pRentWeek" placeholder="800" min="0">
+      </div>
+    </div>
+
+    <div class="fg2">
+      <div>
+        <label class="fl">Stock Quantity</label>
+        <input type="number" class="fi" id="pStock" placeholder="10" min="0" value="10">
+      </div>
+      <div>
+        <label class="fl">Badge / Label</label>
+        <select class="fi" id="pBadge">
+          <option value="">None</option>
+          <option>Best Seller</option><option>New</option><option>Featured</option>
+          <option>Popular</option><option>Premium</option><option>Cinema Grade</option><option>Industry Standard</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label class="fl">Description</label>
+      <textarea class="fi" id="pDesc" rows="3" placeholder="Full product description..."></textarea>
+    </div>
+
+    <div class="fg">
+      <label class="fl">Image URL</label>
+      <input type="url" class="fi" id="pImage" placeholder="https://images.unsplash.com/..." oninput="previewProdImg(this.value)">
+      <img id="pImgPreview" class="img-preview" alt="Preview">
+    </div>
+
+    <div class="fg2">
+      <div class="checkbox-row">
+        <input type="checkbox" id="pCanBuy" checked>
+        <label for="pCanBuy"><i class="fas fa-shopping-bag" style="color:var(--gold);margin-right:.3rem"></i>Available for Purchase</label>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="pCanRent" checked>
+        <label for="pCanRent"><i class="fas fa-calendar" style="color:var(--blue);margin-right:.3rem"></i>Available for Rent</label>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:.75rem;margin-top:1.25rem">
+      <button class="tb-btn" style="flex:1;justify-content:center;padding:.85rem;font-size:.88rem" onclick="saveProduct()" id="saveProdBtn">
+        <i class="fas fa-save me-2"></i>Save Product
+      </button>
+      <button class="tb-btn sec" onclick="closeProductModal()" style="padding:.85rem 1.5rem">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     MODAL: ADD COUPON
+═══════════════════════════════════════ -->
+<div id="couponModal" style="display:none" class="modal-ov" onclick="closeCouponModal(event)">
+  <div class="modal-bx" style="max-width:520px" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeCouponModal()"><i class="fas fa-times"></i></button>
+    <div class="modal-title">Create Coupon</div>
+
+    <div class="fg">
+      <label class="fl">Coupon Code *</label>
+      <input type="text" class="fi" id="cCode" placeholder="e.g. CINEMA20" style="text-transform:uppercase;font-family:var(--font-mono);font-size:1rem;letter-spacing:2px">
+    </div>
+
+    <div class="fg2">
+      <div>
+        <label class="fl">Discount Type</label>
+        <select class="fi" id="cType">
+          <option value="percentage">Percentage (%)</option>
+          <option value="fixed">Fixed Amount ($)</option>
+        </select>
+      </div>
+      <div>
+        <label class="fl">Value *</label>
+        <input type="number" class="fi" id="cValue" placeholder="20" min="0">
+      </div>
+    </div>
+
+    <div class="fg2">
+      <div>
+        <label class="fl">Minimum Order ($)</label>
+        <input type="number" class="fi" id="cMinOrder" placeholder="100" min="0" value="0">
+      </div>
+      <div>
+        <label class="fl">Maximum Uses</label>
+        <input type="number" class="fi" id="cMaxUses" placeholder="100" min="1" value="100">
+      </div>
+    </div>
+
+    <div class="fg">
+      <label class="fl">Expiry Date</label>
+      <input type="date" class="fi" id="cExpiry">
+    </div>
+
+    <div style="display:flex;gap:.75rem;margin-top:1.25rem">
+      <button class="tb-btn" style="flex:1;justify-content:center;padding:.85rem" onclick="saveCoupon()">
+        <i class="fas fa-ticket-alt me-2"></i>Create Coupon
+      </button>
+      <button class="tb-btn sec" onclick="closeCouponModal()" style="padding:.85rem 1.5rem">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     MODAL: ORDER DETAIL
+═══════════════════════════════════════ -->
+<div id="orderModal" style="display:none" class="modal-ov" onclick="closeOrderModal(event)">
+  <div class="modal-bx" style="max-width:700px" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeOrderModal()"><i class="fas fa-times"></i></button>
+    <div class="modal-title" id="orderModalTitle">Order Detail</div>
+    <div id="orderModalBody">Loading...</div>
+  </div>
+</div>
+
+
+<!-- TOAST -->
+<div class="toast-c" id="toastC"></div>
+
+
+<script>
+// ═══════════════════════════════════
+//  CONFIG & GLOBALS
+// ═══════════════════════════════════
+const API = 'http://localhost:5000/api';
+let allProducts = [], allOrders = [], allUsers = [], allCoupons = [], allReviews = [];
+let revenueChartObj = null, statusChartObj = null;
+
+// ─── HELPERS ────────────────────────
+function getToken() { return localStorage.getItem('ct_token'); }
+function clearToken() { localStorage.removeItem('ct_token'); }
+
+async function api(path, opts = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (getToken()) headers['Authorization'] = `Bearer ${getToken()}`;
+  const res = await fetch(API + path, { headers, ...opts });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.msg || 'Request failed');
+  return data;
+}
+
+function toast(msg, type = 's') {
+  const c = document.getElementById('toastC');
+  const el = document.createElement('div');
+  el.className = `toast-i ${type}`;
+  const icons = { s: 'check-circle', e: 'exclamation-circle', w: 'exclamation-triangle' };
+  const colors = { s: 'var(--green)', e: 'var(--red)', w: 'var(--gold)' };
+  el.innerHTML = `<i class="fas fa-${icons[type]}" style="color:${colors[type]};flex-shrink:0"></i>${msg}`;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+function logout() {
+  clearToken();
+  window.location.href = 'index.html';
+}
+
+// ─── TAB NAVIGATION ────────────────
+function showTab(name, el) {
+  document.querySelectorAll('.tab-pane').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.si').forEach(s => s.classList.remove('active'));
+  const pane = document.getElementById('tab-' + name);
+  if (pane) pane.classList.add('active');
+  if (el) el.classList.add('active');
+  const titles = {
+    dashboard: 'Dashboard', products: 'Products', orders: 'Orders',
+    rentals: 'Rentals', users: 'Customers', coupons: 'Coupons',
+    categories: 'Categories', reviews: 'Reviews'
+  };
+  document.getElementById('topbarTitle').textContent = titles[name] || name;
+
+  // Lazy load
+  if (name === 'products') loadProducts();
+  if (name === 'orders') loadOrders();
+  if (name === 'rentals') loadRentals();
+  if (name === 'users') loadUsers();
+  if (name === 'coupons') loadCoupons();
+  if (name === 'categories') loadCategories();
+  if (name === 'reviews') loadReviews();
+}
+
+// ═══════════════════════════════════
+//  INIT
+// ═══════════════════════════════════
+async function init() {
+  if (!getToken()) { window.location.href = 'index.html'; return; }
+  try {
+    const me = await api('/auth/me');
+    if (me.user.role !== 'admin') {
+      alert('Admin access required.'); window.location.href = 'index.html'; return;
+    }
+    document.getElementById('adminName').textContent = me.user.name;
+    document.getElementById('adminEmail').textContent = me.user.email;
+    document.getElementById('adminAvatar').src = me.user.avatar ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(me.user.name)}&background=d4a843&color=000`;
+    loadDashboard();
+  } catch (e) {
+    toast('Auth failed: ' + e.message, 'e');
+    setTimeout(() => window.location.href = 'index.html', 1500);
+  }
+}
+
+// ═══════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════
+async function loadDashboard() {
+  try {
+    const d = await api('/admin/stats');
+
+    // Stats
+    document.getElementById('s-revenue').textContent = '₹' + (d.total_revenue || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById('s-orders').textContent = d.total_orders || 0;
+    document.getElementById('s-products').textContent = d.total_products || 0;
+    document.getElementById('s-customers').textContent = d.total_customers || 0;
+    document.getElementById('s-pending-txt').textContent = `${d.pending_orders || 0} pending`;
+    document.getElementById('s-stock-txt').textContent = `${d.low_stock_count || 0} low stock`;
+
+    // Pending badge
+    const pb = document.getElementById('pendingBadge');
+    if (d.pending_orders > 0) { pb.textContent = d.pending_orders; pb.style.display = 'inline-block'; }
+    else pb.style.display = 'none';
+
+    // Recent orders
+    renderRecentOrders(d.recent_orders || []);
+
+    // Low stock
+    renderLowStock(d.low_stock_products || []);
+
+    // Charts
+    renderCharts(d.monthly_revenue || {}, d.recent_orders || []);
+
+  } catch (e) {
+    toast('Dashboard error: ' + e.message, 'e');
+  }
+}
+
+function renderRecentOrders(orders) {
+  const el = document.getElementById('recentOrdersBody');
+  if (!orders.length) {
+    el.innerHTML = `<tr><td colspan="7" class="empty-st" style="padding:2rem;text-align:center;color:var(--muted)">No orders yet</td></tr>`;
+    return;
+  }
+  el.innerHTML = orders.map(o => `
+    <tr>
+      <td style="font-family:var(--font-mono);font-size:.78rem;color:var(--gold)">${o.order_number}</td>
+      <td style="font-size:.82rem">${o.shipping_address?.name || '—'}</td>
+      <td style="color:var(--muted);font-size:.78rem">${o.items?.length || 0} item(s)</td>
+      <td style="font-family:var(--font-mono)">₹${parseFloat(o.total).toFixed(2)}</td>
+      <td><span class="bdg ${o.status || 'pending'}">${o.status || 'pending'}</span></td>
+      <td style="font-size:.76rem;color:var(--muted)">${new Date(o.created_at).toLocaleDateString()}</td>
+      <td>
+        <select class="fi-sm" onchange="updateOrderStatus('${o.id}',this.value)">
+          ${['pending','processing','shipped','delivered','cancelled'].map(s =>
+            `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`
+          ).join('')}
+        </select>
+      </td>
+    </tr>`).join('');
+}
+
+function renderLowStock(products) {
+  const el = document.getElementById('lowStockBody');
+  if (!products.length) {
+    el.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--green)"><i class="fas fa-check-circle me-2"></i>All products well stocked</td></tr>`;
+    return;
+  }
+  el.innerHTML = products.map(p => `
+    <tr>
+      <td>
+        <div class="t-img-row">
+          <img class="t-img" src="${p.images?.[0] || ''}" alt="${p.name}">
+          <div>
+            <div class="t-name">${p.name}</div>
+            <div class="t-sub">${p.brand || ''}</div>
+          </div>
+        </div>
+      </td>
+      <td style="font-size:.8rem">${p.category}</td>
+      <td><span class="bdg low">Only ${p.stock} left</span></td>
+      <td style="font-family:var(--font-mono);font-size:.84rem">$${p.price.toLocaleString()}</td>
+      <td style="font-family:var(--font-mono);font-size:.8rem;color:var(--muted)">$${p.rent_price_day || 0}</td>
+      <td>
+        <button class="ab" onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i> Edit</button>
+      </td>
+    </tr>`).join('');
+}
+
+function renderCharts(monthly, orders) {
+  // Revenue chart
+  const labels = Object.keys(monthly).sort().slice(-6).map(l =>
+    new Date(l + '-01').toLocaleDateString('en', { month: 'short', year: '2-digit' })
+  );
+  const vals = Object.keys(monthly).sort().slice(-6).map(m => monthly[m] || 0);
+
+  if (revenueChartObj) revenueChartObj.destroy();
+  const rCtx = document.getElementById('revenueChart').getContext('2d');
+  revenueChartObj = new Chart(rCtx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Revenue ($)',
+        data: vals,
+        borderColor: '#d4a843',
+        backgroundColor: 'rgba(212,168,67,.07)',
+        borderWidth: 2,
+        pointBackgroundColor: '#d4a843',
+        pointRadius: 4,
+        tension: .4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#777', font: { size: 11 } } },
+        y: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#777', font: { size: 11 }, callback: v => '$' + v.toLocaleString() } }
+      }
+    }
+  });
+
+  // Status doughnut
+  const statusCounts = orders.reduce((a, o) => { a[o.status] = (a[o.status] || 0) + 1; return a; }, {});
+  const sColors = { pending: 'rgba(255,193,7,.7)', processing: 'rgba(58,138,253,.7)', shipped: 'rgba(138,58,253,.7)', delivered: 'rgba(46,204,113,.7)', cancelled: 'rgba(232,64,64,.7)' };
+
+  if (statusChartObj) statusChartObj.destroy();
+  const sCtx = document.getElementById('statusChart').getContext('2d');
+  const statusLabels = Object.keys(statusCounts);
+  statusChartObj = new Chart(sCtx, {
+    type: 'doughnut',
+    data: {
+      labels: statusLabels,
+      datasets: [{
+        data: statusLabels.map(s => statusCounts[s]),
+        backgroundColor: statusLabels.map(s => sColors[s] || 'rgba(120,120,120,.5)'),
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '70%',
+      plugins: { legend: { position: 'right', labels: { color: '#999', font: { size: 11 }, padding: 12 } } }
+    }
+  });
+}
+
+// ═══════════════════════════════════
+//  PRODUCTS
+// ═══════════════════════════════════
+async function loadProducts() {
+  try {
+    const d = await api('/products?per_page=200&order=desc');
+    allProducts = d.items;
+    document.getElementById('prodCount').textContent = d.total;
+    renderProductsTable(allProducts);
+  } catch (e) { toast(e.message, 'e'); }
+}
+
+function renderProductsTable(products) {
+  const el = document.getElementById('productsBody');
+  if (!products.length) {
+    el.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:3rem;color:var(--muted)">No products found</td></tr>`;
+    return;
+  }
+  el.innerHTML = products.map(p => `
+    <tr>
+      <td>
+        <div class="t-img-row">
+          <img class="t-img" src="${p.images?.[0] || ''}" alt="${p.name}">
+          <div>
+            <div class="t-name">${p.name}</div>
+            <div class="t-sub">${p.brand || ''}</div>
+          </div>
+        </div>
+      </td>
+      <td style="font-size:.78rem">${p.category}</td>
+      <td style="font-family:var(--font-mono);font-size:.84rem">₹${p.price.toLocaleString('en-IN')}</td>
+      <td style="font-family:var(--font-mono);font-size:.8rem;color:var(--muted)">₹${p.rent_price_day || 0}</td>
+      <td style="font-family:var(--font-mono);font-size:.8rem;color:var(--muted)">₹${p.rent_price_week || 0}</td>
+      <td><span class="bdg ${p.stock <= 0 ? 'cancelled' : p.stock < 3 ? 'low' : 'active'}">${p.stock}</span></td>
+      <td style="font-size:.8rem;color:var(--muted)">${p.sales_count || 0}</td>
+      <td style="color:var(--gold);font-size:.82rem">★ ${p.rating || 0}</td>
+      <td><span class="bdg ${p.is_active ? 'active' : 'inactive'}">${p.is_active ? 'Active' : 'Inactive'}</span></td>
+      <td style="white-space:nowrap">
+        <button class="ab" onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i></button>
+        <button class="ab d" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>`).join('');
+}
+
+function filterProdTable(q) {
+  const filtered = allProducts.filter(p =>
+    p.name.toLowerCase().includes(q.toLowerCase()) ||
+    (p.brand || '').toLowerCase().includes(q.toLowerCase())
+  );
+  renderProductsTable(filtered);
+}
+
+function filterProdByCategory(cat) {
+  renderProductsTable(cat ? allProducts.filter(p => p.category === cat) : allProducts);
+}
+
+// PRODUCT MODAL
+function openAddProduct() {
+  document.getElementById('productModalTitle').textContent = 'Add New Product';
+  document.getElementById('editPid').value = '';
+  document.getElementById('pName').value = '';
+  document.getElementById('pBrand').value = '';
+  document.getElementById('pPrice').value = '';
+  document.getElementById('pRentDay').value = '';
+  document.getElementById('pRentWeek').value = '';
+  document.getElementById('pStock').value = '10';
+  document.getElementById('pBadge').value = '';
+  document.getElementById('pDesc').value = '';
+  document.getElementById('pImage').value = '';
+  document.getElementById('pImgPreview').style.display = 'none';
+  document.getElementById('pCanBuy').checked = true;
+  document.getElementById('pCanRent').checked = true;
+  document.getElementById('productModal').style.display = 'flex';
+}
+
+function editProduct(pid) {
+  const p = allProducts.find(x => x.id === pid);
+  if (!p) return;
+  document.getElementById('productModalTitle').textContent = 'Edit Product';
+  document.getElementById('editPid').value = pid;
+  document.getElementById('pName').value = p.name || '';
+  document.getElementById('pCategory').value = p.category || 'Cameras';
+  document.getElementById('pBrand').value = p.brand || '';
+  document.getElementById('pPrice').value = p.price || 0;
+  document.getElementById('pRentDay').value = p.rent_price_day || 0;
+  document.getElementById('pRentWeek').value = p.rent_price_week || 0;
+  document.getElementById('pStock').value = p.stock || 0;
+  document.getElementById('pBadge').value = p.badge || '';
+  document.getElementById('pDesc').value = p.description || '';
+  const img = p.images?.[0] || '';
+  document.getElementById('pImage').value = img;
+  if (img) { document.getElementById('pImgPreview').src = img; document.getElementById('pImgPreview').style.display = 'block'; }
+  document.getElementById('pCanBuy').checked = p.can_buy !== false;
+  document.getElementById('pCanRent').checked = p.can_rent !== false;
+  document.getElementById('productModal').style.display = 'flex';
+}
+
+function previewProdImg(url) {
+  const el = document.getElementById('pImgPreview');
+  if (url) { el.src = url; el.style.display = 'block'; }
+  else el.style.display = 'none';
+}
+
+async function saveProduct() {
+  const btn = document.getElementById('saveProdBtn');
+  const pid = document.getElementById('editPid').value;
+  const name = document.getElementById('pName').value.trim();
+  if (!name) { toast('Product name is required', 'e'); return; }
+
+  const data = {
+    name,
+    category: document.getElementById('pCategory').value,
+    brand: document.getElementById('pBrand').value.trim(),
+    price: parseFloat(document.getElementById('pPrice').value) || 0,
+    rent_price_day: parseFloat(document.getElementById('pRentDay').value) || 0,
+    rent_price_week: parseFloat(document.getElementById('pRentWeek').value) || 0,
+    stock: parseInt(document.getElementById('pStock').value) || 0,
+    badge: document.getElementById('pBadge').value,
+    description: document.getElementById('pDesc').value.trim(),
+    images: [document.getElementById('pImage').value.trim()].filter(Boolean),
+    can_buy: document.getElementById('pCanBuy').checked,
+    can_rent: document.getElementById('pCanRent').checked,
+  };
+
+  btn.innerHTML = '<div class="spinner sm"></div> Saving...';
+  btn.disabled = true;
+  try {
+    if (pid) {
+      await api(`/admin/products/${pid}`, { method: 'PUT', body: JSON.stringify(data) });
+      toast('Product updated successfully!');
+    } else {
+      await api('/admin/products', { method: 'POST', body: JSON.stringify(data) });
+      toast('Product added successfully!');
+    }
+    closeProductModal();
+    loadProducts();
+    loadDashboard();
+  } catch (e) { toast(e.message, 'e'); }
+  btn.innerHTML = '<i class="fas fa-save me-2"></i>Save Product';
+  btn.disabled = false;
+}
+
+async function deleteProduct(pid) {
+  if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) return;
+  try {
+    await api(`/admin/products/${pid}`, { method: 'DELETE' });
+    toast('Product deleted');
+    loadProducts();
+  } catch (e) { toast(e.message, 'e'); }
+}
+
+function closeProductModal(e) {
+  if (!e || e.target === document.getElementById('productModal'))
+    document.getElementById('productModal').style.display = 'none';
+}
+
+// ═══════════════════════════════════
+//  ORDERS
+// ═══════════════════════════════════
+async function loadOrders() {
+  try {
+    const d = await api('/admin/orders?per_page=200');
+    allOrders = d.items;
+    document.getElementById('ordersCount').textContent = d.total;
+    renderOrdersTable(allOrders);
+  } catch (e) { toast(e.message, 'e'); }
+}
+
+function renderOrdersTable(orders) {
+  const el = document.getElementById('ordersBody');
+  if (!orders.length) {
+    el.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:3rem;color:var(--muted)">No orders found</td></tr>`;
+    return;
+  }
+  el.innerHTML = orders.map(o => `
+    <tr>
+      <td style="font-family:var(--font-mono);font-size:.76rem;color:var(--gold)">${o.order_number}</td>
+      <td>
+        <div style="font-weight:600;font-size:.82rem">${o.shipping_address?.name || '—'}</div>
+        <div style="font-size:.7rem;color:var(--muted)">${o.shipping_address?.email || ''}</div>
+      </td>
+      <td style="font-size:.78rem;color:var(--muted)">${o.items?.length || 0}</td>
+      <td style="font-family:var(--font-mono);font-size:.82rem">₹${parseFloat(o.subtotal || 0).toFixed(2)}</td>
+      <td style="font-family:var(--font-mono);font-size:.8rem;color:var(--green)">${o.discount > 0 ? '-₹' + parseFloat(o.discount).toFixed(2) : '—'}</td>
+      <td style="font-family:var(--font-mono);font-size:.88rem;font-weight:700">₹${parseFloat(o.total).toFixed(2)}</td>
+      <td style="font-size:.78rem">${o.payment_method || 'card'}</td>
+      <td><span class="bdg ${o.status || 'pending'}">${o.status || 'pending'}</span></td>
+      <td style="font-size:.74rem;color:var(--muted)">${new Date(o.created_at).toLocaleDateString()}</td>
+      <td>
+        <select class="fi-sm" onchange="updateOrderStatus('${o.id}',this.value)">
+          ${['pending','processing','shipped','delivered','cancelled'].map(s =>
+            `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`
+          ).join('')}
+        </select>
+      </td>
+    </tr>`).join('');
+}
+
+function filterOrdersTable(q) {
+  renderOrdersTable(allOrders.filter(o =>
+    o.order_number?.toLowerCase().includes(q.toLowerCase()) ||
+    o.shipping_address?.name?.toLowerCase().includes(q.toLowerCase()) ||
+    o.shipping_address?.email?.toLowerCase().includes(q.toLowerCase())
+  ));
+}
+
+function filterOrdersByStatus(status) {
+  renderOrdersTable(status ? allOrders.filter(o => o.status === status) : allOrders);
+}
+
+function filterOrdersByType(type) {
+  if (!type) { renderOrdersTable(allOrders); return; }
+  renderOrdersTable(allOrders.filter(o => o.items?.some(i => i.type === type)));
+}
+
+async function updateOrderStatus(oid, status) {
+  try {
+    await api(`/admin/orders/${oid}`, { method: 'PUT', body: JSON.stringify({ status }) });
+    toast('Order status updated to: ' + status);
+    // Update local data
+    const order = allOrders.find(o => o.id === oid);
+    if (order) order.status = status;
+    const pb = document.getElementById('pendingBadge');
+    const pending = allOrders.filter(o => o.status === 'pending').length;
+    pb.textContent = pending;
+    pb.style.display = pending > 0 ? 'inline-block' : 'none';
+  } catch (e) { toast(e.message, 'e'); }
+}
+
+// ═══════════════════════════════════
+//  RENTALS
+// ═══════════════════════════════════
+async function loadRentals() {
+  try {
+    const d = await api('/admin/orders?per_page=200');
+    // Filter only orders with rental items
+    const rentOrders = d.items.filter(o => o.items?.some(i => i.type === 'rent'));
+    renderRentalsTable(rentOrders);
+  } catch (e) { toast(e.message, 'e'); }
+}
+
+function renderRentalsTable(orders) {
+  const el = document.getElementById('rentalsBody');
+  if (!orders.length) {
+    el.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:3rem;color:var(--muted)">No rental orders found</td></tr>`;
+    return;
+  }
+  const rows = [];
+  orders.forEach(o => {
+    o.items.filter(i => i.type === 'rent').forEach(item => {
+      rows.push(`
+        <tr>
+          <td style="font-family:var(--font-mono);font-size:.76rem;color:var(--gold)">${o.order_number}</td>
+          <td style="font-size:.82rem">${o.shipping_address?.name || '—'}</td>
+          <td>
+            <div style="font-weight:600;font-size:.82rem">${item.product_name}</div>
+            <div style="font-size:.7rem;color:var(--muted)">Qty: ${item.quantity}</div>
+          </td>
+          <td style="font-family:var(--font-mono)">${item.rent_days || 1} days</td>
+          <td style="font-size:.78rem;color:var(--muted)">${item.rent_start || '—'}</td>
+          <td style="font-size:.78rem;color:var(--muted)">${item.rent_end || '—'}</td>
+          <td style="font-family:var(--font-mono)">₹${parseFloat(item.total_price).toFixed(2)}</td>
+          <td><span class="bdg ${o.status || 'pending'}">${o.status}</span></td>
+          <td style="font-size:.74rem;color:var(--muted)">${new Date(o.created_at).toLocaleDateString()}</td>
+        </tr>`);
+    });
+  });
+  el.innerHTML = rows.join('');
+}
+
+function filterRentalsTable(q) {
+  const rows = document.querySelectorAll('#rentalsBody tr');
+  rows.forEach(r => {
+    r.style.display = r.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+// ═══════════════════════════════════
+//  USERS
+// ═══════════════════════════════════
+async function loadUsers() {
+  try {
+    const d = await api('/admin/users?per_page=200');
+    allUsers = d.items;
+    document.getElementById('usersCount').textContent = d.total;
+    renderUsersTable(allUsers);
+  } catch (e) { toast(e.message, 'e'); }
+}
+
+function renderUsersTable(users) {
+  const el = document.getElementById('usersBody');
+  if (!users.length) {
+    el.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:3rem;color:var(--muted)">No users found</td></tr>`;
+    return;
+  }
+  el.innerHTML = users.map(u => `
+    <tr>
+      <td>
+        <div class="t-img-row">
+          <img class="t-img" style="border-radius:50%" src="${u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=252525&color=d4a843`}" alt="${u.name}">
+          <div>
+            <div class="t-name">${u.name}</div>
+            <div class="t-sub">#${u.id.slice(0, 8)}</div>
+          </div>
+        </div>
+      </td>
+      <td style="font-size:.82rem">${u.email}</td>
+      <td style="font-size:.78rem">${u.phone || '—'}</td>
+      <td><span class="bdg ${u.role}">${u.role}</span></td>
+      <td style="font-size:.76rem;color:var(--muted)">${new Date(u.created_at).toLocaleDateString()}</td>
+      <td><span class="bdg ${u.is_active !== false ? 'active' : 'inactive'}">${u.is_active !== false ? 'Active' : 'Inactive'}</span></td>
+    </tr>`).join('');
+}
+
+function filterUsersTable(q) {
+  renderUsersTable(allUsers.filter(u =>
+    u.name.toLowerCase().includes(q.toLowerCase()) ||
+    u.email.toLowerCase().includes(q.toLowerCase())
+  ));
+}
+
+function filterUsersByRole(role) {
+  renderUsersTable(role ? allUsers.filter(u => u.role === role) : allUsers);
+}
+
+// ═══════════════════════════════════
+//  COUPONS
+// ═══════════════════════════════════
+async function loadCoupons() {
+  try {
+    const d = await api('/admin/coupons');
+    allCoupons = d.coupons;
+    document.getElementById('couponsCount').textContent = allCoupons.length;
+    renderCouponsTable(allCoupons);
+  } catch (e) { toast(e.message, 'e'); }
+}
+
+function renderCouponsTable(coupons) {
+  const el = document.getElementById('couponsBody');
+  if (!coupons.length) {
+    el.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:3rem;color:var(--muted)">No coupons created yet</td></tr>`;
+    return;
+  }
+  el.innerHTML = coupons.map(c => `
+    <tr>
+      <td style="font-family:var(--font-mono);font-size:.88rem;font-weight:700;color:var(--gold)">${c.code}</td>
+      <td style="font-size:.8rem">${c.type === 'percentage' ? 'Percentage' : 'Fixed Amount'}</td>
+      <td style="font-family:var(--font-mono);font-size:.88rem">${c.type === 'percentage' ? c.value + '%' : '$' + c.value}</td>
+      <td style="font-family:var(--font-mono);font-size:.8rem">$${c.min_order || 0}</td>
+      <td style="font-size:.82rem">
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <div style="flex:1;background:var(--dark);border-radius:100px;height:6px;overflow:hidden">
+            <div style="height:100%;background:var(--gold);width:${Math.min(100,(c.used||0)/(c.max_uses||1)*100)}%"></div>
+          </div>
+          <span style="font-family:var(--font-mono);font-size:.72rem;color:var(--muted)">${c.used || 0}/${c.max_uses || 0}</span>
+        </div>
+      </td>
+      <td style="font-size:.78rem;color:var(--muted)">${c.expires_at || '—'}</td>
+      <td><span class="bdg ${c.is_active ? 'active' : 'inactive'}">${c.is_active ? 'Active' : 'Inactive'}</span></td>
+      <td>
+        <button class="ab d" onclick="deleteCoupon('${c.id}')"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>`).join('');
+}
+
+function openAddCoupon() {
+  document.getElementById('cCode').value = '';
+  document.getElementById('cValue').value = '';
+  document.getElementById('cMinOrder').value = '0';
+  document.getElementById('cMaxUses').value = '100';
+  document.getElementById('cExpiry').value = '';
+  document.getElementById('couponModal').style.display = 'flex';
+}
+
+async function saveCoupon() {
+  const code = document.getElementById('cCode').value.trim().toUpperCase();
+  const value = parseFloat(document.getElementById('cValue').value);
+  if (!code || !value) { toast('Code and value are required', 'e'); return; }
+
+  const data = {
+    code,
+    type: document.getElementById('cType').value,
+    value,
+    min_order: parseFloat(document.getElementById('cMinOrder').value) || 0,
+    max_uses: parseInt(document.getElementById('cMaxUses').value) || 100,
+    expires_at: document.getElementById('cExpiry').value
+  };
+
+  try {
+    await api('/admin/coupons', { method: 'POST', body: JSON.stringify(data) });
+    toast('Coupon created: ' + code);
+    closeCouponModal();
+    loadCoupons();
+  } catch (e) { toast(e.message, 'e'); }
+}
+
+async function deleteCoupon(cid) {
+  if (!confirm('Delete this coupon?')) return;
+  try {
+    await api(`/admin/coupons/${cid}`, { method: 'DELETE' });
+    toast('Coupon deleted');
+    loadCoupons();
+  } catch (e) { toast(e.message, 'e'); }
+}
+
+function closeCouponModal(e) {
+  if (!e || e.target === document.getElementById('couponModal'))
+    document.getElementById('couponModal').style.display = 'none';
+}
+
+// ═══════════════════════════════════
+//  CATEGORIES
+// ═══════════════════════════════════
+async function loadCategories() {
+  try {
+    const d = await api('/categories');
+    const el = document.getElementById('catsBody');
+    el.innerHTML = d.categories.map((c, i) => `
+      <tr>
+        <td style="font-family:var(--font-mono);color:var(--muted)">${i + 1}</td>
+        <td>
+          <span style="font-weight:700;color:var(--white)">${c.name}</span>
+        </td>
+        <td>
+          <span class="bdg active">${c.count} products</span>
+        </td>
+        <td>
+          <button class="ab" onclick="showTab('products',document.getElementById('nav-products'));setTimeout(()=>{document.getElementById('prodCatFilter').value='${c.name}';filterProdByCategory('${c.name}')},300)">
+            <i class="fas fa-eye"></i> View
+          </button>
+        </td>
+      </tr>`).join('');
+  } catch (e) { toast(e.message, 'e'); }
+}
+
+// ═══════════════════════════════════
+//  REVIEWS
+// ═══════════════════════════════════
+async function loadReviews() {
+  try {
+    // Load products then aggregate reviews
+    const d = await api('/products?per_page=200');
+    allReviews = [];
+    for (const p of d.items.slice(0, 10)) {
+      const rd = await api(`/products/${p.id}/reviews`);
+      rd.reviews.forEach(r => allReviews.push({ ...r, product_name: p.name }));
+    }
+    document.getElementById('reviewsCount').textContent = allReviews.length;
+    renderReviewsTable(allReviews);
+  } catch (e) { toast(e.message, 'e'); }
+}
+
+function renderReviewsTable(reviews) {
+  const el = document.getElementById('reviewsBody');
+  if (!reviews.length) {
+    el.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:3rem;color:var(--muted)">No reviews yet</td></tr>`;
+    return;
+  }
+  el.innerHTML = reviews.map(r => `
+    <tr>
+      <td>
+        <div class="t-img-row">
+          <img class="t-img" style="border-radius:50%" src="${r.user_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(r.user_name)}&background=252525&color=d4a843`}" alt="">
+          <div><div class="t-name">${r.user_name}</div></div>
+        </div>
+      </td>
+      <td style="font-size:.82rem;color:var(--text)">${r.product_name}</td>
+      <td>
+        <span style="color:var(--gold)">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+        <span style="font-size:.72rem;color:var(--muted);margin-left:.3rem">${r.rating}/5</span>
+      </td>
+      <td style="max-width:280px;font-size:.8rem;color:var(--muted)">${r.body?.slice(0, 120)}${r.body?.length > 120 ? '...' : ''}</td>
+      <td style="font-size:.76rem;color:var(--muted)">${new Date(r.created_at).toLocaleDateString()}</td>
+    </tr>`).join('');
+}
+
+function filterReviewsTable(q) {
+  renderReviewsTable(allReviews.filter(r =>
+    r.user_name.toLowerCase().includes(q.toLowerCase()) ||
+    r.product_name.toLowerCase().includes(q.toLowerCase()) ||
+    r.body?.toLowerCase().includes(q.toLowerCase())
+  ));
+}
+
+function closeOrderModal(e) {
+  if (!e || e.target === document.getElementById('orderModal'))
+    document.getElementById('orderModal').style.display = 'none';
+}
+
+// ═══════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

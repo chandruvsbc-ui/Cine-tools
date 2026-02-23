@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Orders — CineTools</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--black:#0a0a0a;--dark:#111111;--card:#161616;--border:#2a2a2a;--gold:#d4a843;--gold-dim:#a07830;--red:#e84040;--text:#e8e8e8;--muted:#888;--white:#ffffff;--font-display:'Bebas Neue',sans-serif;--font-body:'DM Sans',sans-serif;--font-mono:'JetBrains Mono',monospace;}
+*{box-sizing:border-box;margin:0;padding:0;}body{background:var(--black);color:var(--text);font-family:var(--font-body);}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--dark);}::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:3px;}
+.navbar{background:rgba(10,10,10,0.96);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:64px;position:fixed;top:0;left:0;right:0;z-index:1000;}
+.navbar-inner{display:flex;align-items:center;justify-content:space-between;height:100%;padding:0 2rem;max-width:1400px;margin:0 auto;}
+.logo{font-family:var(--font-display);font-size:1.8rem;letter-spacing:3px;color:var(--white);text-decoration:none;}.logo span{color:var(--gold);}
+.nav-links{display:flex;gap:2rem;list-style:none;}.nav-links a{color:var(--muted);text-decoration:none;font-size:0.85rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;}.nav-links a:hover,.nav-links a.active{color:var(--gold);}
+.icon-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;padding:0.4rem;transition:color 0.2s;}.icon-btn:hover{color:var(--gold);}
+.btn-primary-ct{background:var(--gold);color:var(--black);padding:0.7rem 1.5rem;font-weight:700;text-decoration:none;border-radius:8px;transition:all 0.2s;font-size:0.85rem;letter-spacing:1px;text-transform:uppercase;border:none;cursor:pointer;}
+.btn-primary-ct:hover{background:#e8bc55;color:var(--black);}
+.page-header{margin-top:64px;background:var(--dark);border-bottom:1px solid var(--border);padding:2.5rem 0;}
+.page-header-inner{max-width:1200px;margin:0 auto;padding:0 2rem;}
+.page-header h1{font-family:var(--font-display);font-size:2.5rem;letter-spacing:3px;color:var(--white);}
+.breadcrumb-ct{display:flex;gap:0.5rem;align-items:center;font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem;}
+.breadcrumb-ct a{color:var(--muted);text-decoration:none;}.breadcrumb-ct a:hover{color:var(--gold);}
+.main-wrap{max-width:1200px;margin:2.5rem auto;padding:0 2rem;display:grid;grid-template-columns:240px 1fr;gap:2rem;}
+/* Sidebar */
+.account-sidebar{position:sticky;top:80px;height:fit-content;}
+.account-panel{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.user-info{padding:1.5rem;background:var(--dark);border-bottom:1px solid var(--border);display:flex;flex-direction:column;align-items:center;text-align:center;}
+.user-avatar{width:60px;height:60px;border-radius:50%;object-fit:cover;margin-bottom:0.75rem;border:2px solid var(--gold);}
+.user-name{font-weight:700;font-size:0.95rem;color:var(--white);}
+.user-email{font-size:0.75rem;color:var(--muted);margin-top:0.25rem;}
+.user-role{font-size:0.68rem;font-family:var(--font-mono);color:var(--gold);margin-top:0.25rem;text-transform:uppercase;letter-spacing:2px;}
+.sidebar-nav{padding:0.5rem 0;}
+.sidebar-link{display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1.25rem;color:var(--muted);text-decoration:none;font-size:0.85rem;transition:all 0.2s;border-left:3px solid transparent;}
+.sidebar-link:hover,.sidebar-link.active{color:var(--gold);background:rgba(212,168,67,0.05);border-left-color:var(--gold);}
+.sidebar-link i{width:16px;text-align:center;}
+/* Orders */
+.page-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:2rem;}
+.page-tab{padding:0.75rem 1.5rem;border:none;background:none;color:var(--muted);font-family:var(--font-body);font-size:0.85rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.2s;}
+.page-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.order-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.25rem;transition:border-color 0.2s;}
+.order-card:hover{border-color:var(--border);}
+.order-header{padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:0.75rem;}
+.order-num{font-family:var(--font-mono);font-size:0.88rem;color:var(--white);font-weight:700;}
+.order-date{font-size:0.78rem;color:var(--muted);}
+.status-badge{padding:0.3rem 0.8rem;border-radius:100px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.status-badge.pending{background:rgba(255,193,7,0.15);color:#ffc107;}
+.status-badge.processing{background:rgba(58,138,253,0.15);color:#3a8afd;}
+.status-badge.shipped{background:rgba(138,58,253,0.15);color:#8a3afd;}
+.status-badge.delivered{background:rgba(46,204,113,0.15);color:#2ecc71;}
+.status-badge.cancelled{background:rgba(232,64,64,0.15);color:var(--red);}
+.order-items{padding:1.25rem 1.5rem;}
+.order-item{display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border);}
+.order-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
+.order-item-img{width:56px;height:56px;border-radius:8px;object-fit:cover;flex-shrink:0;}
+.order-item-info{flex:1;}
+.order-item-name{font-weight:600;font-size:0.88rem;color:var(--white);}
+.order-item-type{font-size:0.72rem;color:var(--gold);font-family:var(--font-mono);}
+.order-item-price{font-family:var(--font-mono);font-size:0.9rem;color:var(--white);}
+.order-footer{padding:1rem 1.5rem;background:var(--dark);display:flex;align-items:center;justify-content:space-between;}
+.order-total-label{font-size:0.8rem;color:var(--muted);}
+.order-total-value{font-family:var(--font-mono);font-size:1.1rem;font-weight:700;color:var(--white);}
+.btn-reorder{background:transparent;border:1px solid var(--gold-dim);color:var(--gold);padding:0.45rem 1rem;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.btn-reorder:hover{background:rgba(212,168,67,0.1);}
+/* Empty state */
+.empty-state{text-align:center;padding:5rem 2rem;}
+.empty-icon{font-size:4rem;opacity:0.2;margin-bottom:1.5rem;}
+.empty-title{font-family:var(--font-display);font-size:2rem;letter-spacing:2px;color:var(--white);margin-bottom:0.75rem;}
+.empty-desc{color:var(--muted);font-size:0.9rem;}
+/* Loading */
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;}
+.toast-item{background:var(--card);border:1px solid var(--border);color:var(--text);padding:1rem 1.5rem;border-radius:8px;font-size:0.88rem;display:flex;align-items:center;gap:0.75rem;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:slideIn 0.3s ease;max-width:320px;}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.u-nav-actions{display:flex;align-items:center;gap:1rem;}
+.u-logout-link{color:var(--red);border-left-color:transparent;}
+.u-loading-center{text-align:center;padding:3rem;}
+.u-spinner-large{width:40px;height:40px;border-width:3px;}
+.u-hidden{display:none;}
+.u-section-title{font-family:var(--font-display);font-size:1.8rem;letter-spacing:2px;margin-bottom:1.5rem;color:var(--white);}
+.u-inline-block-mt{display:inline-block;margin-top:1.5rem;}
+.u-wishlist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.25rem;}
+.u-grid-full-center{grid-column:1/-1;text-align:center;padding:2rem;}
+.u-profile-panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;max-width:600px;}
+.u-form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.u-form-label{display:block;font-size:0.78rem;color:var(--muted);margin-bottom:0.4rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;}
+.u-form-input{width:100%;background:var(--dark);border:1px solid var(--border);color:var(--text);padding:0.7rem 1rem;border-radius:6px;font-family:var(--font-body);font-size:0.88rem;}
+.u-btn-save{background:var(--gold);color:var(--black);padding:0.75rem 2rem;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.9rem;}
+@media(max-width:768px){.main-wrap{grid-template-columns:1fr;}.account-sidebar{position:static;}.nav-links{display:none;}}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="logo">Cine<span>Tools</span></a>
+    <ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="shop.html">Shop</a></li><li><a href="orders.html" class="active">Orders</a></li></ul>
+    <div class="u-nav-actions">
+      <a href="shop.html" class="btn-primary-ct"><i class="fas fa-shopping-bag me-1"></i>Shop</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="breadcrumb-ct"><a href="index.html">Home</a><span>/</span><span>My Account</span></div>
+    <h1>My Account</h1>
+  </div>
+</div>
+
+<div class="main-wrap">
+  <!-- Account Sidebar -->
+  <aside class="account-sidebar">
+    <div class="account-panel">
+      <div class="user-info">
+        <img class="user-avatar" id="userAvatar" src="https://ui-avatars.com/api/?name=User" alt="Avatar">
+        <div class="user-name" id="userName">Loading...</div>
+        <div class="user-email" id="userEmail"></div>
+        <div class="user-role" id="userRole"></div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#orders" class="sidebar-link active" id="tabOrders" onclick="showTab('orders',this)"><i class="fas fa-box"></i>My Orders</a>
+        <a href="#rentals" class="sidebar-link" id="tabRentals" onclick="showTab('rentals',this)"><i class="fas fa-calendar-alt"></i>Rentals</a>
+        <a href="#wishlist" class="sidebar-link" id="tabWishlist" onclick="showTab('wishlist',this)"><i class="fas fa-heart"></i>Wishlist</a>
+        <a href="#profile" class="sidebar-link" id="tabProfile" onclick="showTab('profile',this)"><i class="fas fa-user"></i>Profile</a>
+        <a href="#" onclick="logout()" class="sidebar-link u-logout-link"><i class="fas fa-sign-out-alt"></i>Logout</a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div>
+    <!-- ORDERS -->
+    <div id="tabContent-orders">
+      <div class="page-tabs">
+        <button class="page-tab active" onclick="filterOrders('',this)">All Orders</button>
+        <button class="page-tab" onclick="filterOrders('pending',this)">Pending</button>
+        <button class="page-tab" onclick="filterOrders('processing',this)">Processing</button>
+        <button class="page-tab" onclick="filterOrders('delivered',this)">Delivered</button>
+      </div>
+      <div id="ordersList">
+        <div class="u-loading-center"><div class="spinner u-spinner-large"></div></div>
+      </div>
+    </div>
+
+    <!-- RENTALS -->
+    <div id="tabContent-rentals" class="u-hidden">
+      <h3 class="u-section-title">Active Rentals</h3>
+      <div id="rentalsList">
+        <div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">No Active Rentals</div><div class="empty-desc">Browse our rental catalog to get started</div><a href="shop.html?type=rent" class="btn-primary-ct u-inline-block-mt">Browse Rentals</a></div>
+      </div>
+    </div>
+
+    <!-- WISHLIST -->
+    <div id="tabContent-wishlist" class="u-hidden">
+      <h3 class="u-section-title">My Wishlist</h3>
+      <div id="wishlistGrid" class="u-wishlist-grid">
+        <div class="u-grid-full-center"><div class="spinner u-spinner-large"></div></div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="tabContent-profile" class="u-hidden">
+      <h3 class="u-section-title">Edit Profile</h3>
+      <div class="u-profile-panel">
+        <div class="u-form-row">
+          <div><label class="u-form-label">Full Name</label><input type="text" id="profileName" class="u-form-input"></div>
+          <div><label class="u-form-label">Phone</label><input type="tel" id="profilePhone" class="u-form-input"></div>
+        </div>
+        <button onclick="saveProfile()" class="u-btn-save">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const API = 'http://localhost:5000/api';
+let currentUser = null, allOrders = [];
+
+function getToken() { return localStorage.getItem('ct_token'); }
+async function api(path, opts={}) {
+  const headers = {'Content-Type':'application/json'};
+  if (getToken()) headers['Authorization'] = `Bearer ${getToken()}`;
+  const res = await fetch(API+path,{headers,...opts});
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.msg||'Error');
+  return data;
+}
+function toast(msg, type='success') {
+  const c = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className=`toast-item ${type}`;
+  el.innerHTML=`<i class="fas fa-${type==='success'?'check-circle':'exclamation-circle'}"></i>${msg}`;
+  c.appendChild(el); setTimeout(()=>el.remove(),3500);
+}
+
+function logout() { localStorage.removeItem('ct_token'); localStorage.removeItem('ct_user'); window.location.href='index.html'; }
+
+function showTab(tab, el) {
+  document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.querySelectorAll('[id^="tabContent-"]').forEach(el=>el.style.display='none');
+  document.getElementById(`tabContent-${tab}`).style.display='block';
+  if(tab==='wishlist') loadWishlist();
+  return false;
+}
+
+async function init() {
+  if (!getToken()) { window.location.href='index.html'; return; }
+  try {
+    const d = await api('/auth/me');
+    currentUser = d.user;
+    document.getElementById('userName').textContent = d.user.name;
+    document.getElementById('userEmail').textContent = d.user.email;
+    document.getElementById('userRole').textContent = d.user.role;
+    document.getElementById('userAvatar').src = d.user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(d.user.name)}`;
+    document.getElementById('profileName').value = d.user.name;
+    document.getElementById('profilePhone').value = d.user.phone||'';
+    if (d.user.role === 'admin') {
+      document.querySelector('.sidebar-nav').insertAdjacentHTML('afterbegin',
+        `<a href="admin.html" class="sidebar-link" style="color:var(--gold)"><i class="fas fa-cog"></i>Admin Dashboard</a>`);
+    }
+    loadOrders();
+  } catch { window.location.href='index.html'; }
+}
+
+async function loadOrders() {
+  try {
+    const d = await api('/orders');
+    allOrders = d.orders;
+    renderOrders(allOrders);
+  } catch(e) { document.getElementById('ordersList').innerHTML=`<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Error Loading</div><div class="empty-desc">${e.message}</div></div>`; }
+}
+
+function filterOrders(status, el) {
+  document.querySelectorAll('.page-tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const filtered = status ? allOrders.filter(o=>o.status===status) : allOrders;
+  renderOrders(filtered);
+}
+
+function renderOrders(orders) {
+  const el = document.getElementById('ordersList');
+  if (!orders || !orders.length) {
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">No Orders Yet</div><div class="empty-desc">Start shopping to see your orders here</div><a href="shop.html" style="display:inline-block;margin-top:1.5rem" class="btn-primary-ct">Shop Now</a></div>`;
+    return;
+  }
+  el.innerHTML = orders.map(o => {
+    const statusColors = {pending:'pending',processing:'processing',shipped:'shipped',delivered:'delivered',cancelled:'cancelled'};
+    const statusLabels = {pending:'⏳ Pending',processing:'⚙️ Processing',shipped:'🚚 Shipped',delivered:'✅ Delivered',cancelled:'❌ Cancelled'};
+    return `
+    <div class="order-card">
+      <div class="order-header">
+        <div>
+          <div class="order-num">${o.order_number}</div>
+          <div class="order-date">${new Date(o.created_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem">
+          <span class="status-badge ${statusColors[o.status]||'pending'}">${statusLabels[o.status]||o.status}</span>
+          <span style="font-size:0.75rem;color:var(--muted)">${o.payment_method||'card'} payment</span>
+        </div>
+      </div>
+      <div class="order-items">
+        ${o.items.map(i=>`
+        <div class="order-item">
+          <img class="order-item-img" src="${i.product_image||''}" alt="${i.product_name}">
+          <div class="order-item-info">
+            <div class="order-item-name">${i.product_name}</div>
+            <div class="order-item-type">${i.type==='rent'?`🔄 Rental · ${i.rent_days} days`:'💳 Purchase'} × ${i.quantity}</div>
+          </div>
+          <span class="order-item-price">₹${parseFloat(i.total_price).toFixed(2)}</span>
+        </div>`).join('')}
+      </div>
+      <div class="order-footer">
+        <div><div class="order-total-label">Order Total</div><div class="order-total-value">₹${parseFloat(o.total).toFixed(2)}</div></div>
+        <div style="display:flex;gap:0.75rem">
+          ${o.status==='delivered'?`<button class="btn-reorder" onclick="reviewOrder('${o.id}')">Write Review</button>`:''}
+          <button class="btn-reorder"><i class="fas fa-download me-1"></i>Invoice</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function loadWishlist() {
+  const el = document.getElementById('wishlistGrid');
+  try {
+    const d = await api('/wishlist');
+    if (!d.wishlist.length) {
+      el.innerHTML=`<div style="grid-column:1/-1" class="empty-state"><div class="empty-icon">❤️</div><div class="empty-title">Wishlist Empty</div><div class="empty-desc">Heart items in the shop to save them here</div></div>`;
+      return;
+    }
+    el.innerHTML = d.wishlist.map(i => {
+      const p = i.product;
+      return `<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer" onclick="window.location='product.html?id=${p.id}'">
+        <img src="${p.images?.[0]||''}" style="width:100%;height:160px;object-fit:cover" alt="${p.name}">
+        <div style="padding:1rem">
+          <div style="font-size:0.7rem;color:var(--gold-dim);text-transform:uppercase;letter-spacing:2px;margin-bottom:0.3rem">${p.brand||''}</div>
+          <div style="font-weight:700;font-size:0.88rem;color:var(--white);margin-bottom:0.5rem">${p.name}</div>
+          <div style="font-family:var(--font-mono);color:var(--white);font-size:0.95rem">₹${p.price.toLocaleString()}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { el.innerHTML=`<div style="grid-column:1/-1;color:var(--muted);text-align:center;padding:2rem">Error loading wishlist</div>`; }
+}
+
+async function saveProfile() {
+  try {
+    await api('/auth/profile', {method:'PUT', body:JSON.stringify({name:document.getElementById('profileName').value, phone:document.getElementById('profilePhone').value})});
+    toast('Profile updated!');
+  } catch(e) { toast(e.message,'error'); }
+}
+
+function reviewOrder(oid) { toast('Review modal coming soon'); }
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

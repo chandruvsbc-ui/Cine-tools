@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineTools — Professional Cinema Equipment</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #0a0a0a;
+  --dark: #111111;
+  --card: #161616;
+  --border: #2a2a2a;
+  --gold: #d4a843;
+  --gold-dim: #a07830;
+  --red: #e84040;
+  --text: #e8e8e8;
+  --muted: #888;
+  --white: #ffffff;
+  --radius: 8px;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --api: http://localhost:5000;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--black); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--dark); }
+::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
+
+/* ─── NAVBAR ─── */
+.navbar { background: rgba(10,10,10,0.96); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border); padding: 0 0; height: 64px;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+.navbar-inner { display: flex; align-items: center; justify-content: space-between;
+  height: 100%; padding: 0 2rem; max-width: 1400px; margin: 0 auto; }
+.logo { font-family: var(--font-display); font-size: 1.8rem; letter-spacing: 3px;
+  color: var(--white); text-decoration: none; }
+.logo span { color: var(--gold); }
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase; transition: color 0.2s; }
+.nav-links a:hover, .nav-links a.active { color: var(--gold); }
+.nav-actions { display: flex; align-items: center; gap: 1rem; }
+.icon-btn { background: none; border: none; color: var(--muted); cursor: pointer;
+  font-size: 1.1rem; padding: 0.4rem; transition: color 0.2s; position: relative; }
+.icon-btn:hover { color: var(--gold); }
+.badge-count { position: absolute; top: -4px; right: -4px; background: var(--red);
+  color: white; font-size: 0.65rem; width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+/* ─── HERO ─── */
+.hero { margin-top: 64px; background: var(--dark); position: relative; overflow: hidden;
+  min-height: 92vh; display: flex; align-items: center; }
+.hero::before { content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 70% 50%, rgba(212,168,67,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 20% 80%, rgba(232,64,64,0.05) 0%, transparent 50%); }
+.hero-grid { position: absolute; inset: 0; opacity: 0.03;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px),
+                    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px; }
+.hero-content { position: relative; z-index: 2; max-width: 1400px; margin: 0 auto;
+  padding: 0 2rem; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+.hero-eyebrow { font-family: var(--font-mono); font-size: 0.75rem; color: var(--gold);
+  letter-spacing: 4px; text-transform: uppercase; margin-bottom: 1.5rem; }
+.hero-title { font-family: var(--font-display); font-size: clamp(3.5rem, 7vw, 6rem);
+  line-height: 1; letter-spacing: 2px; color: var(--white); margin-bottom: 1.5rem; }
+.hero-title .accent { color: var(--gold); display: block; }
+.hero-desc { color: var(--muted); font-size: 1.05rem; line-height: 1.7; max-width: 500px; margin-bottom: 2.5rem; }
+.hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+.btn-primary-ct { background: var(--gold); color: var(--black); padding: 0.8rem 2rem;
+  font-weight: 700; text-decoration: none; border-radius: var(--radius); transition: all 0.2s;
+  font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase; border: none; cursor: pointer; }
+.btn-primary-ct:hover { background: #e8bc55; color: var(--black); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(212,168,67,0.3); }
+.btn-outline-ct { background: transparent; color: var(--white); padding: 0.8rem 2rem;
+  font-weight: 600; text-decoration: none; border-radius: var(--radius); transition: all 0.2s;
+  font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase; border: 1px solid var(--border); cursor: pointer; }
+.btn-outline-ct:hover { border-color: var(--gold); color: var(--gold); }
+
+.hero-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-top: 3rem; }
+.stat { border-left: 2px solid var(--gold); padding-left: 1rem; }
+.stat-num { font-family: var(--font-display); font-size: 2.2rem; color: var(--white); line-height: 1; }
+.stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 0.3rem; }
+
+.hero-visual { position: relative; }
+.hero-card-stack { position: relative; height: 500px; }
+.hero-card { position: absolute; background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden; }
+.hero-card.main { width: 300px; height: 380px; right: 0; top: 60px;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.6); }
+.hero-card.secondary { width: 220px; height: 280px; right: 260px; top: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4); transform: rotate(-3deg); }
+.hero-card img { width: 100%; height: 60%; object-fit: cover; }
+.hero-card-body { padding: 1rem; }
+.hero-card-name { font-weight: 700; font-size: 0.85rem; color: var(--white); margin-bottom: 0.3rem; }
+.hero-card-price { font-family: var(--font-mono); font-size: 0.9rem; color: var(--gold); }
+.float-badge { position: absolute; background: var(--gold); color: var(--black);
+  font-size: 0.7rem; font-weight: 800; padding: 0.4rem 0.8rem; border-radius: 4px;
+  text-transform: uppercase; letter-spacing: 1px; }
+
+/* ─── SECTIONS ─── */
+.section { padding: 5rem 0; }
+.section-header { text-align: center; margin-bottom: 3.5rem; }
+.section-eyebrow { font-family: var(--font-mono); font-size: 0.7rem; color: var(--gold);
+  letter-spacing: 4px; text-transform: uppercase; margin-bottom: 0.8rem; }
+.section-title { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--white); letter-spacing: 2px; }
+.container-ct { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+
+/* ─── CATEGORY PILLS ─── */
+.category-scroller { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2rem; }
+.cat-pill { background: var(--card); border: 1px solid var(--border); color: var(--muted);
+  padding: 0.5rem 1.25rem; border-radius: 100px; font-size: 0.82rem; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.cat-pill:hover, .cat-pill.active { background: var(--gold); border-color: var(--gold); color: var(--black); }
+
+/* ─── PRODUCT CARDS ─── */
+.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+.product-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  overflow: hidden; transition: all 0.3s; cursor: pointer; position: relative; }
+.product-card:hover { border-color: var(--gold-dim); transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+.product-img-wrap { position: relative; height: 220px; overflow: hidden; background: #0d0d0d; }
+.product-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+.product-card:hover .product-img-wrap img { transform: scale(1.05); }
+.product-badge { position: absolute; top: 1rem; left: 1rem; background: var(--gold);
+  color: var(--black); font-size: 0.65rem; font-weight: 800; padding: 0.3rem 0.7rem;
+  border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; }
+.product-badge.rent { background: #3a8afd; color: white; }
+.wishlist-btn { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.7);
+  border: none; color: var(--muted); width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+.wishlist-btn:hover, .wishlist-btn.active { color: var(--red); background: rgba(0,0,0,0.9); }
+.rent-tag { position: absolute; bottom: 1rem; left: 1rem; background: rgba(0,0,0,0.85);
+  color: var(--gold); font-size: 0.7rem; font-family: var(--font-mono); padding: 0.25rem 0.6rem;
+  border-radius: 4px; }
+.product-body { padding: 1.25rem; }
+.product-brand { font-size: 0.72rem; color: var(--gold-dim); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.4rem; }
+.product-name { font-size: 0.95rem; font-weight: 700; color: var(--white); line-height: 1.3;
+  margin-bottom: 0.5rem; }
+.product-rating { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.75rem; }
+.stars { color: var(--gold); font-size: 0.75rem; }
+.rating-count { font-size: 0.72rem; color: var(--muted); }
+.product-price { display: flex; align-items: baseline; justify-content: space-between; }
+.price-buy { font-family: var(--font-mono); font-size: 1.2rem; font-weight: 700; color: var(--white); }
+.price-rent { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); }
+.product-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+.btn-cart { flex: 1; background: var(--gold); color: var(--black); border: none;
+  padding: 0.6rem; border-radius: 6px; font-weight: 700; font-size: 0.8rem;
+  cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px; }
+.btn-cart:hover { background: #e8bc55; }
+.btn-rent { flex: 1; background: transparent; color: var(--gold); border: 1px solid var(--gold-dim);
+  padding: 0.6rem; border-radius: 6px; font-weight: 700; font-size: 0.8rem;
+  cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px; }
+.btn-rent:hover { background: rgba(212,168,67,0.1); }
+
+/* ─── FILTER BAR ─── */
+.filter-bar { background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 1rem 1.5rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+  margin-bottom: 2rem; }
+.search-field { flex: 1; min-width: 200px; background: var(--dark); border: 1px solid var(--border);
+  color: var(--text); padding: 0.6rem 1rem; border-radius: 6px; font-family: var(--font-body); font-size: 0.9rem; }
+.search-field:focus { outline: none; border-color: var(--gold-dim); }
+.filter-select { background: var(--dark); border: 1px solid var(--border); color: var(--text);
+  padding: 0.6rem 1rem; border-radius: 6px; font-family: var(--font-body); font-size: 0.85rem; cursor: pointer; }
+.filter-select:focus { outline: none; border-color: var(--gold-dim); }
+
+/* ─── TOAST ─── */
+.toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
+.toast-item { background: var(--card); border: 1px solid var(--border); color: var(--text);
+  padding: 1rem 1.5rem; border-radius: 8px; font-size: 0.88rem; display: flex; align-items: center; gap: 0.75rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5); animation: slideIn 0.3s ease; max-width: 320px; }
+.toast-item.success { border-color: #2ecc71; }
+.toast-item.error { border-color: var(--red); }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* ─── MODAL ─── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000;
+  display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.modal-box { background: var(--dark); border: 1px solid var(--border); border-radius: 16px;
+  width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; position: relative; }
+.modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: var(--card);
+  border: 1px solid var(--border); color: var(--text); width: 36px; height: 36px;
+  border-radius: 50%; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; }
+.modal-close:hover { color: var(--red); }
+
+/* ─── CART SIDEBAR ─── */
+.cart-sidebar { position: fixed; right: 0; top: 0; bottom: 0; width: 420px; background: var(--dark);
+  border-left: 1px solid var(--border); z-index: 1500; transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+.cart-sidebar.open { transform: translateX(0); }
+.cart-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex;
+  align-items: center; justify-content: space-between; }
+.cart-header h3 { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 2px; }
+.cart-items { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.cart-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem;
+  display: flex; gap: 1rem; }
+.cart-item-img { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+.cart-item-info { flex: 1; }
+.cart-item-name { font-size: 0.85rem; font-weight: 700; color: var(--white); margin-bottom: 0.25rem; }
+.cart-item-type { font-size: 0.7rem; color: var(--gold); font-family: var(--font-mono); text-transform: uppercase; }
+.cart-item-price { font-family: var(--font-mono); font-size: 0.95rem; color: var(--white); margin-top: 0.25rem; }
+.cart-footer { padding: 1.5rem; border-top: 1px solid var(--border); }
+.cart-total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.cart-total-label { font-size: 0.85rem; color: var(--muted); }
+.cart-total-value { font-family: var(--font-display); font-size: 1.8rem; color: var(--white); }
+.btn-checkout { width: 100%; background: var(--gold); color: var(--black); border: none;
+  padding: 1rem; border-radius: 8px; font-weight: 800; font-size: 0.95rem;
+  cursor: pointer; text-transform: uppercase; letter-spacing: 2px; transition: all 0.2s; }
+.btn-checkout:hover { background: #e8bc55; transform: translateY(-1px); }
+
+/* ─── AUTH MODAL ─── */
+.auth-tabs { display: flex; border-bottom: 1px solid var(--border); }
+.auth-tab { flex: 1; padding: 1rem; text-align: center; cursor: pointer; color: var(--muted);
+  font-weight: 600; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; border: none;
+  background: none; transition: all 0.2s; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.auth-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+.auth-form { padding: 2rem; }
+.form-group { margin-bottom: 1.25rem; }
+.form-label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.5rem;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+.form-input { width: 100%; background: var(--card); border: 1px solid var(--border);
+  color: var(--text); padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--font-body);
+  font-size: 0.9rem; transition: border-color 0.2s; }
+.form-input:focus { outline: none; border-color: var(--gold-dim); }
+
+/* ─── HOW IT WORKS ─── */
+.how-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; }
+.how-card { text-align: center; padding: 2.5rem 2rem; }
+.how-icon { width: 64px; height: 64px; background: rgba(212,168,67,0.1); border: 1px solid var(--gold-dim);
+  border-radius: 16px; display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; margin: 0 auto 1.5rem; }
+.how-step { font-family: var(--font-mono); font-size: 0.7rem; color: var(--gold); letter-spacing: 3px; margin-bottom: 0.75rem; }
+.how-title { font-weight: 700; font-size: 1rem; color: var(--white); margin-bottom: 0.75rem; }
+.how-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+/* ─── FEATURES BAND ─── */
+.features-band { background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  padding: 2rem 0; }
+.features-inner { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;
+  max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+.feature-item { display: flex; align-items: center; gap: 1rem; }
+.feature-icon { color: var(--gold); font-size: 1.4rem; flex-shrink: 0; }
+.feature-text strong { display: block; font-size: 0.9rem; color: var(--white); }
+.feature-text span { font-size: 0.78rem; color: var(--muted); }
+
+/* ─── FOOTER ─── */
+.footer { background: var(--dark); border-top: 1px solid var(--border); padding: 4rem 0 2rem; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+.footer-brand .logo { font-size: 1.5rem; }
+.footer-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.7; margin-top: 1rem; max-width: 280px; }
+.footer-heading { font-size: 0.75rem; font-weight: 700; color: var(--white); text-transform: uppercase;
+  letter-spacing: 2px; margin-bottom: 1.25rem; }
+.footer-links { list-style: none; }
+.footer-links li { margin-bottom: 0.6rem; }
+.footer-links a { color: var(--muted); text-decoration: none; font-size: 0.83rem; transition: color 0.2s; }
+.footer-links a:hover { color: var(--gold); }
+.footer-bottom { max-width: 1400px; margin: 3rem auto 0; padding: 1.5rem 2rem 0;
+  border-top: 1px solid var(--border); display: flex; justify-content: space-between;
+  align-items: center; font-size: 0.78rem; color: var(--muted); }
+
+/* ─── CHECKOUT PAGE ─── */
+.checkout-grid { display: grid; grid-template-columns: 1fr 380px; gap: 2rem; }
+.checkout-panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; }
+.checkout-panel h4 { font-weight: 700; font-size: 1rem; color: var(--white); margin-bottom: 1.5rem;
+  padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+
+/* ─── ORDER SUMMARY ─── */
+.summary-item { display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.88rem; }
+.summary-item .label { color: var(--muted); }
+.summary-divider { border-color: var(--border); margin: 1rem 0; }
+.summary-total { display: flex; justify-content: space-between; align-items: baseline; }
+.summary-total .label { font-weight: 700; color: var(--white); }
+.summary-total .value { font-family: var(--font-display); font-size: 2rem; color: var(--gold); }
+
+/* ─── PAGE HEADER ─── */
+.page-header { margin-top: 64px; background: var(--dark); border-bottom: 1px solid var(--border);
+  padding: 3rem 0; }
+.page-header-inner { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+.page-header h1 { font-family: var(--font-display); font-size: 2.8rem; letter-spacing: 3px; color: var(--white); }
+.page-header p { color: var(--muted); font-size: 0.9rem; margin-top: 0.5rem; }
+.breadcrumb-ct { display: flex; gap: 0.5rem; align-items: center; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; }
+.breadcrumb-ct a { color: var(--muted); text-decoration: none; } .breadcrumb-ct a:hover { color: var(--gold); }
+.breadcrumb-ct .sep { color: var(--border); }
+
+/* ─── TABS ─── */
+.page-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
+.page-tab { padding: 0.75rem 1.5rem; border: none; background: none; color: var(--muted);
+  font-family: var(--font-body); font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s; }
+.page-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* ─── RENT MODAL ─── */
+.rent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.rent-option { background: var(--card); border: 2px solid var(--border); border-radius: 10px;
+  padding: 1.25rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+.rent-option:hover, .rent-option.selected { border-color: var(--gold); }
+.rent-option .period { font-family: var(--font-display); font-size: 1.3rem; letter-spacing: 1px; color: var(--white); }
+.rent-option .rent-price { font-family: var(--font-mono); font-size: 1.1rem; color: var(--gold); margin-top: 0.25rem; }
+.rent-option .savings { font-size: 0.72rem; color: #2ecc71; margin-top: 0.25rem; }
+
+/* ─── LOADING ─── */
+.spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border);
+  border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-state { text-align: center; padding: 4rem; color: var(--muted); }
+.loading-state .spinner { width: 40px; height: 40px; margin-bottom: 1rem; border-width: 3px; }
+
+/* ─── EMPTY STATE ─── */
+.empty-state { text-align: center; padding: 4rem 2rem; }
+.empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; }
+.empty-title { font-size: 1.1rem; color: var(--white); font-weight: 700; margin-bottom: 0.5rem; }
+.empty-desc { font-size: 0.85rem; color: var(--muted); }
+
+/* ─── OVERLAY ─── */
+.sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1400;
+  display: none; }
+.sidebar-overlay.show { display: block; }
+
+/* ─── UTILITY CLASSES ─── */
+.u-hidden { display: none; }
+.u-admin-btn { display: none; padding: 0.4rem 1rem; font-size: 0.75rem; }
+.u-dropdown { display: none; position: fixed; top: 64px; right: 2rem; z-index: 1100;
+  background: var(--dark); border: 1px solid var(--border); border-radius: 10px; min-width: 200px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5); padding: 0.5rem; }
+.u-user-info { padding: 1rem; border-bottom: 1px solid var(--border); }
+.u-user-name { font-weight: 700; font-size: 0.9rem; }
+.u-user-email { font-size: 0.75rem; color: var(--muted); }
+.u-dropdown-link { display: block; padding: 0.75rem 1rem; color: var(--text);
+  text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+.u-dropdown-link:hover { color: var(--gold); }
+.u-dropdown-link.logout { color: var(--red); }
+.u-dropdown-link.register { color: var(--gold); }
+.u-float-badge-live { top: 30px; right: 10px; background: var(--red); }
+.u-float-badge-seller { bottom: 80px; left: 20px; }
+.u-grid-full { grid-column: 1/-1; }
+.u-mt-1 { margin-top: 1rem; }
+.u-mt-3 { margin-top: 3rem; }
+.u-text-center { text-align: center; }
+.u-section-special { background: var(--card); border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border); }
+.u-small-text { font-size: 0.72rem; color: var(--muted); text-align: center; margin-top: 0.75rem; }
+.u-modal-sm { max-width: 480px; }
+.u-btn-full { width: 100%; margin-top: 0.5rem; }
+.u-demo-text { text-align: center; font-size: 0.8rem; color: var(--muted); margin-top: 1rem; }
+.u-modal-rent { max-width: 520px; padding: 2rem; }
+.u-rent-title { font-family: var(--font-display); font-size: 1.8rem; letter-spacing: 2px; margin-bottom: 0.5rem; }
+.u-rent-subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 2rem; }
+.u-form-mt { margin-top: 1.5rem; }
+.u-date-input { margin-top: 0.5rem; }
+.u-rent-total-box { margin-top: 1rem; padding: 1rem; background: var(--card); border-radius: 8px;
+  display: flex; justify-content: space-between; align-items: center; }
+.u-rent-total-label { font-size: 0.85rem; color: var(--muted); }
+.u-rent-total-value { font-family: var(--font-display); font-size: 1.8rem; color: var(--gold); }
+.u-btn-mt { width: 100%; margin-top: 1.5rem; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-content { grid-template-columns: 1fr; }
+  .hero-visual { display: none; }
+  .nav-links { display: none; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .checkout-grid { grid-template-columns: 1fr; }
+  .cart-sidebar { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ NAVBAR ═══════════════════════ -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="logo">Cine<span>Tools</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html" id="navHome">Home</a></li>
+      <li><a href="shop.html" id="navShop">Shop</a></li>
+      <li><a href="shop.html?type=rent" id="navRent">Rent</a></li>
+      <li><a href="orders.html" id="navOrders">Orders</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="icon-btn" onclick="openSearch()" title="Search"><i class="fas fa-search"></i></button>
+      <button class="icon-btn" onclick="toggleWishlist()" title="Wishlist"><i class="fas fa-heart"></i></button>
+      <button class="icon-btn" onclick="openCart()" title="Shopping Cart">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="badge-count u-hidden" id="cartCount">0</span>
+      </button>
+      <button class="icon-btn" onclick="toggleUserMenu()" id="userBtn" title="User Menu">
+        <i class="fas fa-user-circle"></i>
+      </button>
+      <button id="adminNavBtn" class="btn-primary-ct u-admin-btn" onclick="window.location='admin.html'">
+        <i class="fas fa-cog"></i> Admin
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- User Dropdown -->
+<div id="userDropdown" class="u-dropdown">
+  <div id="userInfo" class="u-user-info">
+    <div class="u-user-name" id="ddName">Loading...</div>
+    <div class="u-user-email" id="ddEmail"></div>
+  </div>
+  <div id="loggedInLinks">
+    <a href="orders.html" onclick="toggleUserMenu()" class="u-dropdown-link"><i class="fas fa-box me-2"></i>My Orders</a>
+    <a href="#" onclick="toggleUserMenu()" class="u-dropdown-link"><i class="fas fa-heart me-2"></i>Wishlist</a>
+    <a href="#" onclick="logout()" class="u-dropdown-link logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+  </div>
+  <div id="loggedOutLinks">
+    <a href="#" onclick="openAuth('login');toggleUserMenu()" class="u-dropdown-link"><i class="fas fa-sign-in-alt me-2"></i>Login</a>
+    <a href="#" onclick="openAuth('register');toggleUserMenu()" class="u-dropdown-link register"><i class="fas fa-user-plus me-2"></i>Register</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
+<div id="mainContent">
+
+<!-- HERO -->
+<section class="hero" id="heroSection">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-left">
+      <div class="hero-eyebrow">// Professional Cinema Equipment Store</div>
+      <h1 class="hero-title">
+        Gear Up.<br>
+        <span class="accent">Film Better.</span>
+      </h1>
+      <p class="hero-desc">
+        Buy or rent professional cinema equipment. From RED cameras to ZEISS lenses — 
+        everything you need to bring your vision to life.
+      </p>
+      <div class="hero-actions">
+        <a href="shop.html" class="btn-primary-ct"><i class="fas fa-shopping-bag me-2"></i>Shop Now</a>
+        <a href="shop.html?type=rent" class="btn-outline-ct"><i class="fas fa-clock me-2"></i>Rent Equipment</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><div class="stat-num">20+</div><div class="stat-label">Products</div></div>
+        <div class="stat"><div class="stat-num">48h</div><div class="stat-label">Delivery</div></div>
+        <div class="stat"><div class="stat-num">1K+</div><div class="stat-label">Happy Filmmakers</div></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-card-stack">
+        <div class="hero-card secondary">
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400" alt="Lens">
+          <div class="hero-card-body">
+            <div class="hero-card-name">ZEISS Supreme 85mm</div>
+            <div class="hero-card-price">₹9,960/day</div>
+          </div>
+        </div>
+        <div class="hero-card main">
+          <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600" alt="Camera">
+          <div class="hero-card-body">
+            <div class="hero-card-name">Sony FX6 Cinema Camera</div>
+            <div class="hero-card-price">₹498,097 · ₹12,450/day</div>
+          </div>
+        </div>
+        <div class="float-badge u-float-badge-live">🔴 Live</div>
+        <div class="float-badge u-float-badge-seller">Best Seller</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES BAND -->
+<div class="features-band">
+  <div class="features-inner">
+    <div class="feature-item"><i class="fas fa-shipping-fast feature-icon"></i><div class="feature-text"><strong>Free Shipping</strong><span>On orders over ₹41,500</span></div></div>
+    <div class="feature-item"><i class="fas fa-shield-alt feature-icon"></i><div class="feature-text"><strong>Equipment Insurance</strong><span>All rentals insured</span></div></div>
+    <div class="feature-item"><i class="fas fa-undo feature-icon"></i><div class="feature-text"><strong>30-Day Returns</strong><span>Hassle-free returns</span></div></div>
+    <div class="feature-item"><i class="fas fa-headset feature-icon"></i><div class="feature-text"><strong>24/7 Support</strong><span>Expert tech support</span></div></div>
+  </div>
+</div>
+
+<!-- FEATURED PRODUCTS -->
+<section class="section">
+  <div class="container-ct">
+    <div class="section-header">
+      <div class="section-eyebrow">// Curated Selection</div>
+      <h2 class="section-title">Featured Equipment</h2>
+    </div>
+    <div class="category-scroller" id="catPills">
+      <div class="cat-pill active" data-cat="">All</div>
+    </div>
+    <div id="featuredGrid" class="products-grid">
+      <div class="loading-state u-grid-full"><div class="spinner"></div><p class="u-mt-1">Loading equipment...</p></div>
+    </div>
+    <div class="u-text-center u-mt-3">
+      <a href="shop.html" class="btn-outline-ct">View All Equipment <i class="fas fa-arrow-right ms-2"></i></a>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section u-section-special">
+  <div class="container-ct">
+    <div class="section-header">
+      <div class="section-eyebrow">// Simple Process</div>
+      <h2 class="section-title">How Renting Works</h2>
+    </div>
+    <div class="how-grid">
+      <div class="how-card"><div class="how-icon">🔍</div><div class="how-step">Step 01</div><h3 class="how-title">Browse & Select</h3><p class="how-desc">Choose from our professional cinema equipment catalog. Filter by category, brand, or budget.</p></div>
+      <div class="how-card"><div class="how-icon">📅</div><div class="how-step">Step 02</div><h3 class="how-title">Pick Your Dates</h3><p class="how-desc">Select your rental period — daily, weekly, or monthly rates available with flexible pickup.</p></div>
+      <div class="how-card"><div class="how-icon">🚚</div><div class="how-step">Step 03</div><h3 class="how-title">Delivered to You</h3><p class="how-desc">Equipment arrives clean, tested, and ready to shoot. On-time delivery guaranteed.</p></div>
+      <div class="how-card"><div class="how-icon">🎬</div><div class="how-step">Step 04</div><h3 class="how-title">Shoot & Return</h3><p class="how-desc">Film your project, then schedule a pickup. Simple, transparent, and no hidden fees.</p></div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- ═══════════════════════ CART SIDEBAR ═══════════════════════ -->
+<div class="sidebar-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<aside class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h3>Your Cart</h3>
+    <button class="icon-btn" onclick="closeCart()" title="Close Cart"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">Cart is empty</div><div class="empty-desc">Add some equipment to get started</div></div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total-row">
+      <span class="cart-total-label">Estimated Total</span>
+      <span class="cart-total-value" id="cartTotal">$0.00</span>
+    </div>
+    <button class="btn-checkout" onclick="proceedToCheckout()">
+      <i class="fas fa-lock me-2"></i>Secure Checkout
+    </button>
+    <p class="u-small-text">
+      <i class="fas fa-shield-alt me-1"></i>SSL Encrypted · Safe & Secure
+    </p>
+  </div>
+</aside>
+
+<!-- ═══════════════════════ AUTH MODAL ═══════════════════════ -->
+<div id="authOverlay" class="modal-overlay u-hidden" onclick="closeAuth(event)">
+  <div class="modal-box u-modal-sm" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeAuth()"><i class="fas fa-times"></i></button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button>
+      <button class="auth-tab" id="registerTab" onclick="switchAuthTab('register')">Register</button>
+    </div>
+    <!-- Login -->
+    <div id="loginForm" class="auth-form">
+      <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="loginEmail" placeholder="you@example.com"></div>
+      <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="loginPass" placeholder="••••••••"></div>
+      <button class="btn-primary-ct u-btn-full" onclick="doLogin()">
+        <span id="loginBtnText">Login to CineTools</span>
+      </button>
+      <p class="u-demo-text">Demo admin: admin@cinetools.com / admin123</p>
+    </div>
+    <!-- Register -->
+    <div id="registerForm" class="auth-form u-hidden">
+      <div class="form-group"><label class="form-label">Full Name</label><input type="text" class="form-input" id="regName" placeholder="John Doe"></div>
+      <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="regEmail" placeholder="you@example.com"></div>
+      <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="regPass" placeholder="Min. 8 characters"></div>
+      <button class="btn-primary-ct u-btn-full" onclick="doRegister()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ RENT MODAL ═══════════════════════ -->
+<div id="rentOverlay" class="modal-overlay u-hidden" onclick="closeRentModal(event)">
+  <div class="modal-box u-modal-rent" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeRentModal()"><i class="fas fa-times"></i></button>
+    <h3 class="u-rent-title">Rent Equipment</h3>
+    <p id="rentProductName" class="u-rent-subtitle"></p>
+    <div class="rent-grid" id="rentOptions">
+      <div class="rent-option selected" data-days="1">
+        <div class="period">1 Day</div>
+        <div class="rent-price" id="rent1day"></div>
+      </div>
+      <div class="rent-option" data-days="3">
+        <div class="period">3 Days</div>
+        <div class="rent-price" id="rent3day"></div>
+        <div class="savings">Save ~10%</div>
+      </div>
+      <div class="rent-option" data-days="7">
+        <div class="period">1 Week</div>
+        <div class="rent-price" id="rent1week"></div>
+        <div class="savings">Best Value!</div>
+      </div>
+      <div class="rent-option" data-days="30">
+        <div class="period">1 Month</div>
+        <div class="rent-price" id="rent1month"></div>
+        <div class="savings">Save ~40%</div>
+      </div>
+    </div>
+    <div class="u-form-mt">
+      <label class="form-label">Start Date</label>
+      <input type="date" class="form-input u-date-input" id="rentStartDate">
+    </div>
+    <div class="u-rent-total-box">
+      <span class="u-rent-total-label">Total Rental Cost</span>
+      <span id="rentTotal" class="u-rent-total-value">$0</span>
+    </div>
+    <button class="btn-primary-ct u-btn-mt" onclick="addRentToCart()">
+      <i class="fas fa-calendar-plus me-2"></i>Add Rental to Cart
+    </button>
+  </div>
+</div>
+
+<!-- TOAST Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="index.html" class="logo">Cine<span>Tools</span></a>
+      <p class="footer-desc">Professional cinema equipment — buy or rent. Trusted by filmmakers worldwide for over a decade.</p>
+    </div>
+    <div>
+      <div class="footer-heading">Shop</div>
+      <ul class="footer-links">
+        <li><a href="shop.html?cat=Cameras">Cameras</a></li>
+        <li><a href="shop.html?cat=Lenses">Lenses</a></li>
+        <li><a href="shop.html?cat=Lighting">Lighting</a></li>
+        <li><a href="shop.html?cat=Audio">Audio</a></li>
+        <li><a href="shop.html?type=rent">Rent Equipment</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-heading">Account</div>
+      <ul class="footer-links">
+        <li><a href="orders.html">My Orders</a></li>
+        <li><a href="#" onclick="openAuth('login')">Login</a></li>
+        <li><a href="#" onclick="openAuth('register')">Register</a></li>
+        <li><a href="#">Wishlist</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-heading">Help</div>
+      <ul class="footer-links">
+        <li><a href="#">Rental Guide</a></li>
+        <li><a href="#">Shipping Info</a></li>
+        <li><a href="#">Returns Policy</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 CineTools. All rights reserved.</span>
+    <span>Made for filmmakers, by filmmakers 🎬</span>
+  </div>
+</footer>
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  CONFIG & STATE
+// ════════════════════════════════════════════════════════════
+const API = 'http://localhost:5000/api';
+let currentUser = null;
+let cartData = [];
+let rentProduct = null;
+let selectedRentDays = 1;
+
+// ─── TOKEN ───────────────────────────────────────────────────
+function getToken() { return localStorage.getItem('ct_token'); }
+function setToken(t) { localStorage.setItem('ct_token', t); }
+function clearToken() { localStorage.removeItem('ct_token'); localStorage.removeItem('ct_user'); }
+
+// ─── API HELPER ──────────────────────────────────────────────
+async function api(path, opts = {}) {
+  const token = getToken();
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(API + path, { headers, ...opts });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.msg || 'Request failed');
+  return data;
+}
+
+// ─── TOAST ───────────────────────────────────────────────────
+function toast(msg, type = 'success', icon = '') {
+  const c = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  const icons = { success: 'fas fa-check-circle', error: 'fas fa-exclamation-circle', info: 'fas fa-info-circle' };
+  el.className = `toast-item ${type}`;
+  el.innerHTML = `<i class="${icons[type] || icons.info}" style="color:${type==='success'?'#2ecc71':type==='error'?'var(--red)':'var(--gold)'}"></i>${msg}`;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ─── AUTH ────────────────────────────────────────────────────
+async function initAuth() {
+  const token = getToken();
+  if (!token) { updateNavAuth(null); return; }
+  try {
+    const data = await api('/auth/me');
+    currentUser = data.user;
+    updateNavAuth(currentUser);
+    loadCart();
+  } catch { clearToken(); updateNavAuth(null); }
+}
+
+function updateNavAuth(user) {
+  const adminBtn = document.getElementById('adminNavBtn');
+  const ddName = document.getElementById('ddName');
+  const ddEmail = document.getElementById('ddEmail');
+  const loggedIn = document.getElementById('loggedInLinks');
+  const loggedOut = document.getElementById('loggedOutLinks');
+  if (user) {
+    if (ddName) ddName.textContent = user.name;
+    if (ddEmail) ddEmail.textContent = user.email;
+    if (loggedIn) loggedIn.style.display = 'block';
+    if (loggedOut) loggedOut.style.display = 'none';
+    if (adminBtn) adminBtn.style.display = user.role === 'admin' ? 'inline-flex' : 'none';
+  } else {
+    if (ddName) ddName.textContent = 'Guest';
+    if (ddEmail) ddEmail.textContent = '';
+    if (loggedIn) loggedIn.style.display = 'none';
+    if (loggedOut) loggedOut.style.display = 'block';
+    if (adminBtn) adminBtn.style.display = 'none';
+  }
+}
+
+function openAuth(tab = 'login') {
+  document.getElementById('authOverlay').style.display = 'flex';
+  switchAuthTab(tab);
+}
+function closeAuth(e) {
+  if (!e || e.target === document.getElementById('authOverlay'))
+    document.getElementById('authOverlay').style.display = 'none';
+}
+function switchAuthTab(tab) {
+  document.getElementById('loginTab').classList.toggle('active', tab==='login');
+  document.getElementById('registerTab').classList.toggle('active', tab==='register');
+  document.getElementById('loginForm').style.display = tab==='login' ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab==='register' ? 'block' : 'none';
+}
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPass').value;
+  const btn = document.getElementById('loginBtnText');
+  btn.innerHTML = '<div class="spinner" style="display:inline-block;vertical-align:middle"></div>';
+  try {
+    const d = await api('/auth/login', { method:'POST', body: JSON.stringify({email,password}) });
+    setToken(d.token);
+    currentUser = d.user;
+    updateNavAuth(currentUser);
+    closeAuth();
+    toast(`Welcome back, ${d.user.name}!`);
+    loadCart();
+  } catch(e) { toast(e.message, 'error'); }
+  btn.textContent = 'Login to CineTools';
+}
+async function doRegister() {
+  const name = document.getElementById('regName').value;
+  const email = document.getElementById('regEmail').value;
+  const password = document.getElementById('regPass').value;
+  try {
+    const d = await api('/auth/register', { method:'POST', body: JSON.stringify({name,email,password}) });
+    setToken(d.token);
+    currentUser = d.user;
+    updateNavAuth(currentUser);
+    closeAuth();
+    toast('Account created! Welcome to CineTools 🎬');
+    loadCart();
+  } catch(e) { toast(e.message, 'error'); }
+}
+function logout() {
+  clearToken(); currentUser = null;
+  updateNavAuth(null);
+  cartData = []; renderCartCount();
+  toast('Logged out successfully');
+  toggleUserMenu();
+}
+function toggleUserMenu() {
+  const dd = document.getElementById('userDropdown');
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', e => {
+  const dd = document.getElementById('userDropdown');
+  const btn = document.getElementById('userBtn');
+  if (dd && btn && !dd.contains(e.target) && !btn.contains(e.target))
+    dd.style.display = 'none';
+});
+
+// ─── CART ────────────────────────────────────────────────────
+function openCart() {
+  document.getElementById('cartSidebar').classList.add('open');
+  document.getElementById('cartOverlay').classList.add('show');
+  if (getToken()) loadCart();
+}
+function closeCart() {
+  document.getElementById('cartSidebar').classList.remove('open');
+  document.getElementById('cartOverlay').classList.remove('show');
+}
+async function loadCart() {
+  if (!getToken()) return;
+  try {
+    const d = await api('/cart');
+    cartData = d.cart;
+    renderCart(d.cart, d.total);
+    renderCartCount();
+  } catch {}
+}
+function renderCart(items, total) {
+  const el = document.getElementById('cartItems');
+  const totEl = document.getElementById('cartTotal');
+  if (totEl) totEl.textContent = `₹${total.toLocaleString('en-IN', {minimumFractionDigits:2})}`;
+  if (!items || items.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">Cart is empty</div><div class="empty-desc">Add some equipment to get started</div></div>`;
+    return;
+  }
+  el.innerHTML = items.map(i => {
+    const p = i.product;
+    const price = i.type === 'rent' ? (p.rent_price_day * (i.rent_days||1) * i.quantity) : (p.price * i.quantity);
+    return `
+    <div class="cart-item">
+      <img class="cart-item-img" src="${p.images?.[0]||''}" alt="${p.name}">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${p.name}</div>
+        <div class="cart-item-type">${i.type === 'rent' ? `🔄 Rent · ${i.rent_days} day(s)` : '💳 Purchase'}</div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-top:0.2rem">Qty: ${i.quantity}</div>
+        <div class="cart-item-price">₹${price.toFixed(2)}</div>
+      </div>
+      <button onclick="removeFromCart('${i.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;padding:0.25rem;align-self:flex-start;transition:color 0.2s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted)'">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+    </div>`;
+  }).join('');
+}
+function renderCartCount() {
+  const badge = document.getElementById('cartCount');
+  if (!badge) return;
+  const n = cartData.length;
+  badge.textContent = n;
+  badge.style.display = n > 0 ? 'flex' : 'none';
+}
+async function removeFromCart(cid) {
+  try {
+    await api(`/cart/${cid}`, { method:'DELETE' });
+    await loadCart();
+    toast('Item removed from cart');
+  } catch(e) { toast(e.message, 'error'); }
+}
+async function addToCart(pid, type = 'buy', rentDays = 1, startDate = null, endDate = null) {
+  if (!getToken()) { openAuth('login'); return; }
+  try {
+    await api('/cart', { method:'POST', body: JSON.stringify({
+      product_id: pid, type, quantity: 1, rent_days: rentDays,
+      rent_start: startDate, rent_end: endDate
+    })});
+    await loadCart();
+    toast(type === 'rent' ? '📅 Rental added to cart!' : '🛒 Added to cart!');
+    openCart();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ─── RENT MODAL ──────────────────────────────────────────────
+function openRentModal(product) {
+  if (!getToken()) { openAuth('login'); return; }
+  rentProduct = product;
+  selectedRentDays = 1;
+  document.getElementById('rentProductName').textContent = product.name;
+  document.getElementById('rent1day').textContent = `$${product.rent_price_day}/day`;
+  document.getElementById('rent3day').textContent = `$${(product.rent_price_day*3).toFixed(0)}`;
+  document.getElementById('rent1week').textContent = `$${product.rent_price_week || (product.rent_price_day*7*0.85).toFixed(0)}`;
+  document.getElementById('rent1month').textContent = `$${(product.rent_price_day*30*0.65).toFixed(0)}`;
+  // Set min date to today
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('rentStartDate').min = today;
+  document.getElementById('rentStartDate').value = today;
+  document.querySelectorAll('.rent-option').forEach(el => {
+    el.classList.toggle('selected', parseInt(el.dataset.days) === 1);
+    el.onclick = () => selectRentPeriod(el, parseInt(el.dataset.days));
+  });
+  updateRentTotal();
+  document.getElementById('rentOverlay').style.display = 'flex';
+}
+function selectRentPeriod(el, days) {
+  document.querySelectorAll('.rent-option').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedRentDays = days;
+  updateRentTotal();
+}
+function updateRentTotal() {
+  if (!rentProduct) return;
+  let price;
+  if (selectedRentDays >= 30) price = rentProduct.rent_price_day * 30 * 0.65;
+  else if (selectedRentDays >= 7) price = rentProduct.rent_price_week || rentProduct.rent_price_day * 7 * 0.85;
+  else price = rentProduct.rent_price_day * selectedRentDays;
+  document.getElementById('rentTotal').textContent = `₹${price.toFixed(0)}`;
+}
+function closeRentModal(e) {
+  if (!e || e.target === document.getElementById('rentOverlay'))
+    document.getElementById('rentOverlay').style.display = 'none';
+}
+async function addRentToCart() {
+  if (!rentProduct) return;
+  const startDate = document.getElementById('rentStartDate').value;
+  const endDate = new Date(startDate);
+  endDate.setDate(endDate.getDate() + selectedRentDays);
+  await addToCart(rentProduct.id, 'rent', selectedRentDays, startDate, endDate.toISOString().split('T')[0]);
+  closeRentModal();
+}
+
+// ─── PRODUCTS ────────────────────────────────────────────────
+function renderProducts(products, containerId = 'featuredGrid') {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (!products || products.length === 0) {
+    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📷</div><div class="empty-title">No products found</div><div class="empty-desc">Try adjusting your filters</div></div>`;
+    return;
+  }
+  el.innerHTML = products.map(p => `
+  <div class="product-card" onclick="viewProduct('${p.id}')">
+    <div class="product-img-wrap">
+      <img src="${p.images?.[0]||'https://via.placeholder.com/400x300/111/444?text=No+Image'}" alt="${p.name}" loading="lazy">
+      ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
+      <button class="wishlist-btn" id="wish-${p.id}" onclick="event.stopPropagation();toggleWishlistItem('${p.id}')">
+        <i class="fas fa-heart"></i>
+      </button>
+      ${p.can_rent ? `<span class="rent-tag">From ₹${p.rent_price_day}/day</span>` : ''}
+    </div>
+    <div class="product-body">
+      <div class="product-brand">${p.brand || p.category}</div>
+      <div class="product-name">${p.name}</div>
+      <div class="product-rating">
+        <div class="stars">${'★'.repeat(Math.round(p.rating||0))}${'☆'.repeat(5-Math.round(p.rating||0))}</div>
+        <span class="rating-count">${p.rating||0} (${p.reviews_count||0})</span>
+      </div>
+      <div class="product-price">
+        <span class="price-buy">${p.can_buy ? '₹'+p.price.toLocaleString() : 'Rent Only'}</span>
+        ${p.can_rent ? `<span class="price-rent">₹${p.rent_price_day}/day</span>` : ''}
+      </div>
+      <div class="product-actions" onclick="event.stopPropagation()">
+        ${p.can_buy ? `<button class="btn-cart" onclick="addToCart('${p.id}','buy')"><i class="fas fa-shopping-bag me-1"></i>Buy</button>` : ''}
+        ${p.can_rent ? `<button class="btn-rent" onclick="openRentModal(${JSON.stringify(p).replace(/"/g,'&quot;')})"><i class="fas fa-calendar me-1"></i>Rent</button>` : ''}
+      </div>
+    </div>
+  </div>`).join('');
+}
+
+async function loadFeatured() {
+  const el = document.getElementById('featuredGrid');
+  if (!el) return;
+  try {
+    const d = await api('/products?page=1&per_page=8');
+    renderProducts(d.items);
+    loadCategories();
+  } catch { el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">⚠️</div><div class="empty-title">Backend offline</div><div class="empty-desc">Run: python backend/app.py</div></div>`; }
+}
+
+async function loadCategories() {
+  const el = document.getElementById('catPills');
+  if (!el) return;
+  try {
+    const d = await api('/categories');
+    const extra = d.categories.map(c => `<div class="cat-pill" data-cat="${c.name}" onclick="filterByCategory(this,'${c.name}')">${c.name} <span style="opacity:0.5;font-size:0.7rem">(${c.count})</span></div>`).join('');
+    el.innerHTML = `<div class="cat-pill active" data-cat="" onclick="filterByCategory(this,'')">All</div>` + extra;
+  } catch {}
+}
+async function filterByCategory(el, cat) {
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  const el2 = document.getElementById('featuredGrid');
+  el2.innerHTML = `<div class="loading-state" style="grid-column:1/-1"><div class="spinner"></div></div>`;
+  const url = cat ? `/products?category=${encodeURIComponent(cat)}&per_page=8` : '/products?per_page=8';
+  const d = await api(url);
+  renderProducts(d.items);
+}
+
+function viewProduct(pid) { window.location.href = `product.html?id=${pid}`; }
+function openSearch() { window.location.href = 'shop.html'; }
+function toggleWishlist() { if (!getToken()) { openAuth('login'); return; } window.location.href = 'orders.html'; }
+
+async function toggleWishlistItem(pid) {
+  if (!getToken()) { openAuth('login'); return; }
+  try {
+    const d = await api('/wishlist', { method:'POST', body: JSON.stringify({product_id:pid}) });
+    toast(d.added ? '❤️ Added to wishlist' : 'Removed from wishlist');
+    const btn = document.getElementById(`wish-${pid}`);
+    if (btn) btn.classList.toggle('active', d.added);
+  } catch(e) { toast(e.message,'error'); }
+}
+
+function proceedToCheckout() {
+  if (!getToken()) { closeCart(); openAuth('login'); return; }
+  if (cartData.length === 0) { toast('Your cart is empty','error'); return; }
+  window.location.href = 'checkout.html';
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  initAuth();
+  if (document.getElementById('featuredGrid')) loadFeatured();
+});
+</script>
+</body>
+</html>
